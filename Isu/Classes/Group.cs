@@ -10,8 +10,8 @@ namespace Isu.Classes
         {
             if (IsNameCorrect(name))
             {
-                course.AddGroup(this);
                 Name = name;
+                course.AddGroup(this);
                 Students = new List<Student>(30);
             }
             else

@@ -19,8 +19,8 @@ namespace Isu.Tests
         public void AddStudentToGroup_StudentHasGroupAndGroupContainsStudent()
         {
             Group g = _isuService.AddGroup("M3202");
-            _isuService.AddStudent(g, "Миксаил Кузутов");
-            Assert.Fail();
+            Student s = _isuService.AddStudent(g, "Миксаил Кузутов");
+            Assert.IsTrue(s.Group != null && g.IsStudentInGroup(s));
         }
 
         [Test]

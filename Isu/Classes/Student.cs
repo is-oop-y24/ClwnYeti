@@ -7,22 +7,12 @@ namespace Isu.Classes
 {
     public class Student
     {
-        private Group _group;
+        private Group _group = null;
         public Student(Group group, string name, int id)
         {
-            try
-            {
-                group.AddStudent(this);
-            }
-            catch (IsuException e)
-            {
-                Console.WriteLine(e);
-                return;
-            }
-
+            Group = group;
             Id = id;
             Name = name;
-            Group = group;
         }
 
         public int Id { get; }
@@ -32,7 +22,11 @@ namespace Isu.Classes
             get => _group;
             set
             {
-                _group.DeleteStudent(this);
+                if (_group != null)
+                {
+                    _group.DeleteStudent(this);
+                }
+
                 value.AddStudent(this);
                 _group = value;
             }

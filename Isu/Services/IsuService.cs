@@ -7,7 +7,12 @@ namespace Isu.Services
 {
     public class IsuService : IIsuService
     {
-        private Department _dep = new Department();
+        private Department _dep;
+
+        public IsuService()
+        {
+            _dep = new Department();
+        }
 
         public Group AddGroup(string name)
         {
