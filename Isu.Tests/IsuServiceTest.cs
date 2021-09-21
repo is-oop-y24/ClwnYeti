@@ -18,9 +18,9 @@ namespace Isu.Tests
         [Test]
         public void AddStudentToGroup_StudentHasGroupAndGroupContainsStudent()
         {
-            Group g = _isuService.AddGroup("M3202");
-            Student s = _isuService.AddStudent(g, "Миксаил Кузутов");
-            Assert.IsTrue(s.Group != null && g.IsStudentInGroup(s));
+            Group group = _isuService.AddGroup("M3202");
+            Student student = _isuService.AddStudent(group, "Миксаил Кузутов");
+            Assert.IsTrue(student.GroupId == group.Id);
         }
 
         [Test]
@@ -28,10 +28,10 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {
-                Group g = _isuService.AddGroup("M3202");
+                Group group = _isuService.AddGroup("M3202");
                 for (int i = 0; i < 31; i++)
                 {
-                    _isuService.AddStudent(g, "Миксаил Кузутов");
+                    _isuService.AddStudent(group, "Миксаил Кузутов");
                 }
             });
         }
@@ -41,7 +41,7 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {
-                Group g = _isuService.AddGroup("M2202");
+                Group group = _isuService.AddGroup("M2202");
             });
         }
 
@@ -50,10 +50,10 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {   
-                Group g1 = _isuService.AddGroup("M3202");
-                Student s = _isuService.AddStudent(g1, "Миксаил Кузутов");
-                Group g2 = _isuService.AddGroup("M3201");
-                _isuService.ChangeStudentGroup(s, g2);
+                Group firstGroup = _isuService.AddGroup("M3202");
+                Student student = _isuService.AddStudent(firstGroup, "Миксаил Кузутов");
+                Group secondGroup = _isuService.AddGroup("M3201");
+                _isuService.ChangeStudentGroup(student, secondGroup);
             });
         }
     }

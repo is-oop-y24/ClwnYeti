@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Isu.Classes;
 using Isu.Tools;
 
@@ -7,138 +7,112 @@ namespace Isu.Services
 {
     public class IsuService : IIsuService
     {
-        private Department _dep;
+        private readonly int _maxNumOfStudents;
+        private readonly List<Student> _students;
+        private readonly List<Group> _groups;
 
         public IsuService()
         {
-            _dep = new Department();
+            _maxNumOfStudents = 30;
+            _students = new List<Student>();
+            _groups = new List<Group>();
         }
 
         public Group AddGroup(string name)
         {
-            return name[2] switch
+            switch (name[2])
             {
-                '1' => new Group(name, _dep.Courses[0]),
-                '2' => new Group(name, _dep.Courses[1]),
-                '3' => new Group(name, _dep.Courses[2]),
-                '4' => new Group(name, _dep.Courses[3]),
-                _ => throw new IsuException($"Group name \"{name}\" is invalid")
-            };
+                case '1':
+                {
+                    _groups.Add(new Group(name, _groups.Count, CourseNumber.First, _maxNumOfStudents));
+                    return _groups[^1];
+                }
+
+                case '2':
+                {
+                    _groups.Add(new Group(name, _groups.Count, CourseNumber.Second, _maxNumOfStudents));
+                    return _groups[^1];
+                }
+
+                case '3':
+                {
+                    _groups.Add(new Group(name, _groups.Count, CourseNumber.Third, _maxNumOfStudents));
+                    return _groups[^1];
+                }
+
+                case '4':
+                {
+                    _groups.Add(new Group(name, _groups.Count, CourseNumber.Fourth, _maxNumOfStudents));
+                    return _groups[^1];
+                }
+
+                default:
+                    throw new IsuException($"Group name \"{name}\" is invalid");
+            }
         }
 
         public Student AddStudent(Group group, string name)
         {
-            return new Student(group, name, _dep.Count());
+            _students.Add(new Student(group.Id, name, _students.Count, group.CourseNumber));
+            group.AddStudent();
+            return _students[^1];
         }
 
         public Student GetStudent(int id)
         {
-            foreach (Course i in _dep.Courses)
+            foreach (Student i in _students.Where(i => i.Id == id))
             {
-                foreach (Group f in i.Groups)
-                {
-                    foreach (Student r in f.Students)
-                    {
-                        if (r.Id == id)
-                        {
-                            return r;
-                        }
-                    }
-                }
+                return i;
             }
 
-            return null;
+            throw new IsuException($"Couldn't find a student with id {id}");
         }
 
         public Student FindStudent(string name)
         {
-            foreach (Course i in _dep.Courses)
-            {
-                foreach (Group f in i.Groups)
-                {
-                    foreach (Student r in f.Students)
-                    {
-                        if (r.Name == name)
-                        {
-                            return r;
-                        }
-                    }
-                }
-            }
-
-            return null;
+            return _students.FirstOrDefault(i => i.Name == name);
         }
 
         public List<Student> FindStudents(string groupName)
         {
-            foreach (Course i in _dep.Courses)
+            Group group = null;
+            foreach (Group j in _groups.Where(j => j.Name == groupName))
             {
-                foreach (Group f in i.Groups)
-                {
-                    if (f.Name == groupName)
-                    {
-                        return f.Students;
-                    }
-                }
+                group = j;
             }
 
-            return new List<Student>();
+            if (group == null)
+            {
+                throw new IsuException($"There's no group with name {groupName}");
+            }
+
+            return _students.Where(i => i.GroupId == group.Id).ToList();
         }
 
         public List<Student> FindStudents(CourseNumber courseNumber)
         {
-            foreach (Course i in _dep.Courses)
-            {
-                if (i.CourseNumber == courseNumber)
-                {
-                    var st = new List<Student>(i.Count());
-                    foreach (Group f in i.Groups)
-                    {
-                        foreach (Student r in f.Students)
-                        {
-                            st.Add(r);
-                        }
-                    }
-
-                    return st;
-                }
-            }
-
-            return new List<Student>();
+            return _students.Where(i => i.CourseNumber == courseNumber).ToList();
         }
 
         public Group FindGroup(string groupName)
         {
-            foreach (Course i in _dep.Courses)
-            {
-                foreach (Group f in i.Groups)
-                {
-                    if (f.Name == groupName)
-                    {
-                        return f;
-                    }
-                }
-            }
-
-            return null;
+            return _groups.FirstOrDefault(i => i.Name == groupName);
         }
 
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
-            foreach (Course i in _dep.Courses)
-            {
-                if (i.CourseNumber == courseNumber)
-                {
-                    return i.Groups;
-                }
-            }
-
-            return new List<Group>();
+            return _groups.Where(i => i.CourseNumber == courseNumber).ToList();
         }
 
         public void ChangeStudentGroup(Student student, Group newGroup)
         {
-            student.Group = newGroup;
+            foreach (Group j in _groups.Where(j => j.Id == student.GroupId))
+            {
+                j.DeleteStudent();
+            }
+
+            newGroup.AddStudent();
+            student.GroupId = newGroup.Id;
         }
     }
 }

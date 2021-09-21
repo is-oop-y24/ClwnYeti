@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using Isu.Tools;
+﻿using Isu.Tools;
 
 namespace Isu.Classes
 {
     public class Group
     {
-        public Group(string name, Course course)
+        private readonly int _maxNumOfStudents;
+        public Group(string name, int id, CourseNumber courseNumber, int maxNumOfStudents)
         {
             if (IsNameCorrect(name))
             {
                 Name = name;
-                course.AddGroup(this);
-                Students = new List<Student>(30);
+                NumOfStudents = 0;
+                Id = id;
+                CourseNumber = courseNumber;
+                _maxNumOfStudents = maxNumOfStudents;
             }
             else
             {
@@ -21,48 +22,32 @@ namespace Isu.Classes
         }
 
         public string Name { get; }
-        public List<Student> Students { get; }
+        public CourseNumber CourseNumber { get; }
+        public int Id { get; }
+        private int NumOfStudents { get; set; }
 
-        public void DeleteStudent(Student st)
-        {
-            if (!IsStudentInGroup(st))
-            {
-                Students.Remove(st);
-            }
-            else
-            {
-                throw new IsuException($"{st.Name} isn't in a group \"{this.Name}\"");
-            }
-        }
-
-        public void AddStudent(Student st)
+        public void AddStudent()
         {
             if (!IsGroupCrowded())
             {
-                Students.Add(st);
+                NumOfStudents += 1;
             }
             else
             {
-                throw new IsuException($"Group \"{this.Name}\" is crowded");
+                throw new IsuException($"Group \"{Name}\" is crowded");
             }
         }
 
-        public int Count()
+        public void DeleteStudent()
         {
-            return Students.Count;
-        }
-
-        public bool IsStudentInGroup(Student st)
-        {
-            foreach (Student i in Students)
+            if (NumOfStudents > 0)
             {
-                if (i == st)
-                {
-                    return true;
-                }
+                NumOfStudents -= 1;
             }
-
-            return false;
+            else
+            {
+                throw new IsuException($"Group \"{Name}\" is empty");
+            }
         }
 
         private bool IsNameCorrect(string name)
@@ -72,7 +57,7 @@ namespace Isu.Classes
 
         private bool IsGroupCrowded()
         {
-            return Students.Count >= 30;
+            return NumOfStudents >= _maxNumOfStudents;
         }
     }
 }

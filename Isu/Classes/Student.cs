@@ -1,40 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using Isu.Tools;
-
-namespace Isu.Classes
+﻿namespace Isu.Classes
 {
     public class Student
     {
-        private Group _group = null;
-        public Student(Group group, string name, int id)
+        public Student(int groupId, string name, int id, CourseNumber courseNumber)
         {
-            Group = group;
+            GroupId = groupId;
             Id = id;
+            CourseNumber = courseNumber;
             Name = name;
         }
 
         public int Id { get; }
         public string Name { get; }
-        public Group Group
-        {
-            get => _group;
-            set
-            {
-                if (_group != null)
-                {
-                    _group.DeleteStudent(this);
-                }
-
-                value.AddStudent(this);
-                _group = value;
-            }
-        }
-
-        private bool Equals(Student obj)
-        {
-            return Id == obj.Id;
-        }
+        public int GroupId { get; internal set; }
+        public CourseNumber CourseNumber { get; }
     }
 }
