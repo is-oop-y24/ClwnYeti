@@ -20,35 +20,8 @@ namespace Isu.Services
 
         public Group AddGroup(string name)
         {
-            switch (name[2])
-            {
-                case '1':
-                {
-                    _groups.Add(new Group(name, _groups.Count, CourseNumber.First, _maxNumOfStudents));
-                    return _groups[^1];
-                }
-
-                case '2':
-                {
-                    _groups.Add(new Group(name, _groups.Count, CourseNumber.Second, _maxNumOfStudents));
-                    return _groups[^1];
-                }
-
-                case '3':
-                {
-                    _groups.Add(new Group(name, _groups.Count, CourseNumber.Third, _maxNumOfStudents));
-                    return _groups[^1];
-                }
-
-                case '4':
-                {
-                    _groups.Add(new Group(name, _groups.Count, CourseNumber.Fourth, _maxNumOfStudents));
-                    return _groups[^1];
-                }
-
-                default:
-                    throw new IsuException($"Group name \"{name}\" is invalid");
-            }
+            _groups.Add(new Group(name, _groups.Count, (CourseNumber)(name[2] - 48), _maxNumOfStudents));
+            return _groups[^1];
         }
 
         public Student AddStudent(Group group, string name)
