@@ -11,13 +11,20 @@ namespace Shops.Classes
             Purse = new Purse(amountOfMoney);
         }
 
+        public Customer(string name, Purse amountOfMoney, int id)
+        {
+            Name = name;
+            Id = id;
+            Purse = new Purse(amountOfMoney);
+        }
+
         public string Name { get; }
         public int Id { get; }
-        private Purse Purse { get; set; }
+        private Purse Purse { get; }
 
-        public void Buy(Price price)
+        public Customer Buy(Price price)
         {
-            Purse -= price;
+            return new Customer(Name, Purse - price, Id);
         }
     }
 }

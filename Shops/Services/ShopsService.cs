@@ -7,9 +7,9 @@ namespace Shops.Services
 {
     public class ShopsService
     {
-        private List<Shop> _shops;
-        private List<Customer> _customers;
-        private List<string> _products;
+        private readonly List<Shop> _shops;
+        private readonly List<Customer> _customers;
+        private readonly List<string> _products;
 
         public ShopsService()
         {
@@ -43,7 +43,7 @@ namespace Shops.Services
                 throw new ShopException($"{name} isn't registered");
             }
 
-            shop.AddProduct(new Order(name, count));
+            _shops[shop.Id] = shop.AddProduct(new Order(name, count));
             return true;
         }
 
@@ -54,7 +54,7 @@ namespace Shops.Services
                 throw new ShopException($"{name} isn't registered");
             }
 
-            shop.AddProduct(new OrderWithPrice(name, count, new Price(price.ToString())));
+            _shops[shop.Id] = shop.AddProduct(new OrderWithPrice(name, count, new Price(price.ToString())));
             return true;
         }
 
@@ -67,7 +67,7 @@ namespace Shops.Services
 
             foreach (Order i in products)
             {
-                shop.AddProduct(i);
+                _shops[shop.Id] = shop.AddProduct(i);
             }
 
             return true;
@@ -104,8 +104,8 @@ namespace Shops.Services
                 throw new ShopException("Couldn't find a shop with all products");
             }
 
-            _shops[minimalId].Sell(products);
-            customer.Buy(shopResponses[minimalId].Price);
+            _shops[minimalId] = _shops[minimalId].Sell(products);
+            _customers[customer.Id] = customer.Buy(shopResponses[minimalId].Price);
             return true;
         }
 
@@ -117,14 +117,14 @@ namespace Shops.Services
                 throw new ShopException($"{shop.Name} doesn't have all products");
             }
 
-            shop.Sell(products);
-            customer.Buy(shopResponse.Price);
+            _shops[shop.Id] = shop.Sell(products);
+            _customers[customer.Id] = customer.Buy(shopResponse.Price);
             return true;
         }
 
         public bool SetPriceForProduct(Shop shop, string name, int price)
         {
-            shop.ChangePrice(name, new Price(price.ToString()));
+            _shops[shop.Id] = shop.ChangePrice(name, new Price(price.ToString()));
             return true;
         }
     }

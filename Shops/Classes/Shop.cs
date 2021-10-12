@@ -1,56 +1,58 @@
 using System.Collections.Generic;
-using System.Linq;
 using Shops.Tools;
 
 namespace Shops.Classes
 {
     public class Shop
     {
-        private Dictionary<Product, int> _products;
+        private readonly Dictionary<string, Product> _products;
 
         public Shop(int id, string name, string address)
         {
-            _products = new Dictionary<Product, int>();
+            _products = new Dictionary<string, Product>();
             Id = id;
             Name = name;
             Address = address;
         }
 
-        public int Id { get; }
+        private Shop(int id, string name, string address, Dictionary<string, Product> products)
+        {
+            _products = products;
+            Id = id;
+            Name = name;
+            Address = address;
+        }
+
         public string Name { get; }
         public string Address { get; }
+        public int Id { get; }
 
-        public void AddProduct(OrderWithPrice order)
+        public Shop AddProduct(OrderWithPrice order)
         {
-            bool flag = true;
-            foreach (Product i in _products.Keys.Where(i => i.Name == order.Product))
+            if (!_products.ContainsKey(order.Product))
             {
-                _products[i] += order.Count;
-                i.Price = order.Price;
-                flag = false;
-                break;
+                Dictionary<string, Product> changedProducts = _products;
+                changedProducts.Add(order.Product, new Product(order.Product, order.Price, Id, order.Count));
+                return new Shop(Id, Name, Address, changedProducts);
             }
-
-            if (flag)
+            else
             {
-                _products.Add(new Product(order.Product, order.Price, Id), order.Count);
+                Dictionary<string, Product> changedProducts = _products;
+                changedProducts[order.Product] = _products[order.Product].Buy(order.Count);
+                return new Shop(Id, Name, Address, changedProducts);
             }
         }
 
-        public void AddProduct(Order order)
+        public Shop AddProduct(Order order)
         {
-            bool flag = true;
-            foreach (Product j in _products.Keys.Where(i => i.Name == order.Product))
-            {
-                _products[j] += order.Count;
-                flag = false;
-                break;
-            }
-
-            if (flag)
+            if (!_products.ContainsKey(order.Product))
             {
                 throw new ShopException($"{order.Product} wasn't in the shop anytime\n The price isn't able to set");
             }
+
+            Dictionary<string, Product> changedProducts = _products;
+            changedProducts[order.Product] = _products[order.Product].Buy(order.Count);
+            return new Shop(Id, Name, Address, changedProducts);
         }
 
         public ShopResponse FindProducts(List<Order> products)
@@ -58,23 +60,18 @@ namespace Shops.Classes
             var price = new Price("0");
             foreach (Order i in products)
             {
-                bool flag = true;
-                foreach (Product f in _products.Keys.Where(j => j.Name == i.Product))
-                {
-                    if (_products[f] < i.Count)
-                    {
-                        return new ShopResponse(false, null, Id);
-                    }
-
-                    flag = false;
-                    price += f.Price * i.Count;
-                    break;
-                }
-
-                if (flag)
+                if (!_products.ContainsKey(i.Product))
                 {
                     return new ShopResponse(false, null, Id);
                 }
+
+                if (_products[i.Product].Count < i.Count)
+                {
+                    return new ShopResponse(false, null, Id);
+                }
+
+                price += _products[i.Product].Price * i.Count;
+                break;
             }
 
             return new ShopResponse(true, price, Id);
@@ -85,54 +82,44 @@ namespace Shops.Classes
             var price = new Price("0");
             foreach (OrderWithPrice i in products)
             {
-                bool flag = true;
-                foreach (Product f in _products.Keys.Where(j => j.Name == i.Product))
-                {
-                    if (_products[f] < i.Count)
-                    {
-                        return new ShopResponse(false, null, Id);
-                    }
-
-                    flag = false;
-                    price += f.Price * i.Count;
-                    break;
-                }
-
-                if (flag)
+                if (!_products.ContainsKey(i.Product))
                 {
                     return new ShopResponse(false, null, Id);
                 }
+
+                if (_products[i.Product].Count < i.Count)
+                {
+                    return new ShopResponse(false, null, Id);
+                }
+
+                price += _products[i.Product].Price * i.Count;
+                break;
             }
 
             return new ShopResponse(true, price, Id);
         }
 
-        public void Sell(List<Order> products)
+        public Shop Sell(List<Order> products)
         {
+            Dictionary<string, Product> changedProducts = _products;
             foreach (Order i in products)
             {
-                foreach (Product f in _products.Keys.Where(j => j.Name == i.Product))
-                {
-                    _products[f] -= i.Count;
-                    break;
-                }
+                changedProducts[i.Product] = _products[i.Product].Buy(i.Count);
             }
+
+            return new Shop(Id, Name, Address, changedProducts);
         }
 
-        public void ChangePrice(string name, Price newPrice)
+        public Shop ChangePrice(string name, Price newPrice)
         {
-            bool flag = true;
-            foreach (Product j in _products.Keys.Where(i => i.Name == name))
-            {
-                j.Price = newPrice;
-                flag = false;
-                break;
-            }
-
-            if (flag)
+            if (!_products.ContainsKey(name))
             {
                 throw new ShopException($"{name} wasn't in the shop anytime\n The price isn't able to set");
             }
+
+            Dictionary<string, Product> changedProducts = _products;
+            changedProducts[name] = changedProducts[name].ChangePrice(newPrice);
+            return new Shop(Id, Name, Address, changedProducts);
         }
     }
 }
