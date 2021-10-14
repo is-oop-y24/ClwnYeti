@@ -1,4 +1,5 @@
-﻿using Isu.Tools;
+﻿using System.Text.RegularExpressions;
+using Isu.Tools;
 
 namespace Isu.Classes
 {
@@ -52,7 +53,8 @@ namespace Isu.Classes
 
         private bool IsNameCorrect(string name)
         {
-            return name.Length == 5 && name[0] == 'M' && name[1] == '3' && name[2] > '0' && name[2] <= '4';
+            const string groupNameForCheck = @"[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2}";
+            return Regex.IsMatch(name, groupNameForCheck);
         }
 
         private bool IsGroupCrowded()
