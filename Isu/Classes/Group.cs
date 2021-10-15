@@ -8,24 +8,22 @@ namespace Isu.Classes
         private readonly int _maxNumOfStudents;
         public Group(string name, int id, CourseNumber courseNumber, int maxNumOfStudents)
         {
-            if (IsNameCorrect(name))
-            {
-                Name = name;
-                NumOfStudents = 0;
-                Id = id;
-                CourseNumber = courseNumber;
-                _maxNumOfStudents = maxNumOfStudents;
-            }
-            else
-            {
-                throw new IsuException($"Group name \"{name}\" is invalid");
-            }
+            Name = name;
+            NumOfStudents = 0;
+            Id = id;
+            CourseNumber = courseNumber;
+            _maxNumOfStudents = maxNumOfStudents;
         }
 
         public string Name { get; }
         public CourseNumber CourseNumber { get; }
         public int Id { get; }
         private int NumOfStudents { get; set; }
+        public static bool IsNameCorrect(string name)
+        {
+            const string groupNameForCheck = @"[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2,3}";
+            return Regex.IsMatch(name, groupNameForCheck);
+        }
 
         public void AddStudent()
         {
@@ -49,12 +47,6 @@ namespace Isu.Classes
             {
                 throw new IsuException($"Group \"{Name}\" is empty");
             }
-        }
-
-        private bool IsNameCorrect(string name)
-        {
-            const string groupNameForCheck = @"[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2-3}";
-            return Regex.IsMatch(name, groupNameForCheck);
         }
 
         private bool IsGroupCrowded()

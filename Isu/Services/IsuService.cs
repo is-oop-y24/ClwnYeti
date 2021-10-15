@@ -20,8 +20,15 @@ namespace Isu.Services
 
         public Group AddGroup(string name)
         {
-            _groups.Add(new Group(name, _groups.Count, (CourseNumber)(name[2] - 48), _maxNumOfStudents));
-            return _groups[^1];
+            if (Group.IsNameCorrect(name))
+            {
+                _groups.Add(new Group(name, _groups.Count, (CourseNumber)(name[2] - 48), _maxNumOfStudents));
+                return _groups[^1];
+            }
+            else
+            {
+                throw new IsuException($"Group name \"{name}\" is invalid");
+            }
         }
 
         public Student AddStudent(Group group, string name)
