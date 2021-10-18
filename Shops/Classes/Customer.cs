@@ -8,19 +8,19 @@ namespace Shops.Classes
         {
             Name = name;
             Id = id;
-            Purse = new Purse(amountOfMoney);
+            Purse = new Money(amountOfMoney);
         }
 
-        public Customer(string name, Purse amountOfMoney, int id)
+        public Customer(string name, Money amountOfMoney, int id)
         {
             Name = name;
             Id = id;
-            Purse = new Purse(amountOfMoney);
+            Purse = new Money(amountOfMoney);
         }
 
         public string Name { get; }
         public int Id { get; }
-        private Purse Purse { get; }
+        private Money Purse { get; }
 
         public Customer Buy(Price price)
         {
