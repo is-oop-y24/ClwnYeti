@@ -2,7 +2,7 @@ namespace Shops.Classes
 {
     public class Order
     {
-        public Order(string product, int count)
+        public Order(string product, uint count)
         {
             Product = product;
             Count = count;
@@ -15,6 +15,6 @@ namespace Shops.Classes
         }
 
         public string Product { get; }
-        public int Count { get; }
+        public uint Count { get; }
     }
 }

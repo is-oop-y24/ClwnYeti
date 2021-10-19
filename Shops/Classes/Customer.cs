@@ -4,27 +4,25 @@ namespace Shops.Classes
 {
     public class Customer
     {
-        public Customer(string name, string amountOfMoney, int id)
+        public Customer(string name, uint amountOfMoney, int id)
         {
             Name = name;
             Id = id;
-            Purse = new Money(amountOfMoney);
-        }
-
-        public Customer(string name, Money amountOfMoney, int id)
-        {
-            Name = name;
-            Id = id;
-            Purse = new Money(amountOfMoney);
+            Balance = amountOfMoney;
         }
 
         public string Name { get; }
         public int Id { get; }
-        private Money Purse { get; }
+        private uint Balance { get; }
 
-        public Customer Buy(Money price)
+        public Customer Buy(uint price)
         {
-            return new Customer(Name, Purse - price, Id);
+            return new Customer(Name, Balance - price, Id);
+        }
+
+        public bool IsAbleToBuy(uint price)
+        {
+            return Balance >= price;
         }
     }
 }
