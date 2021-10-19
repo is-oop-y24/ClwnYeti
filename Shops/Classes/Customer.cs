@@ -19,5 +19,10 @@ namespace Shops.Classes
         {
             return new Customer(Name, Balance - price, Id);
         }
+
+        public bool IsAbleToBuy(uint price)
+        {
+            return Balance >= price;
+        }
     }
 }

@@ -118,6 +118,11 @@ namespace Shops.Services
             }
 
             _shops[shop.Id] = shop.Sell(products);
+            if (!customer.IsAbleToBuy(shopResponse.Price))
+            {
+                throw new ShopException("Customer don't have enough money");
+            }
+
             _customers[customer.Id] = customer.Buy(shopResponse.Price);
             return true;
         }
