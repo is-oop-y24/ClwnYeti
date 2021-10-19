@@ -18,9 +18,9 @@ namespace Shops.Services
             _products = new List<string>();
         }
 
-        public Customer AddCustomer(string name, uint amountOfMoney)
+        public Customer AddCustomer(string name, int amountOfMoney)
         {
-            _customers.Add(new Customer(name, amountOfMoney, _customers.Count));
+            _customers.Add(new Customer(name, amountOfMoney.ToString(), _customers.Count));
             return _customers[^1];
         }
 
@@ -36,7 +36,7 @@ namespace Shops.Services
             return _products[^1];
         }
 
-        public bool AddProductForShop(Shop shop, string name, uint count)
+        public bool AddProductForShop(Shop shop, string name, int count)
         {
             if (!_products.Contains(name))
             {
@@ -47,14 +47,14 @@ namespace Shops.Services
             return true;
         }
 
-        public bool AddProductForShop(Shop shop, string name, uint count, uint price)
+        public bool AddProductForShop(Shop shop, string name, int count, int price)
         {
             if (!_products.Contains(name))
             {
                 throw new ShopException($"{name} isn't registered");
             }
 
-            _shops[shop.Id] = shop.AddProduct(new OrderWithPrice(name, count, price));
+            _shops[shop.Id] = shop.AddProduct(new OrderWithPrice(name, count, new Money(price.ToString())));
             return true;
         }
 
@@ -90,16 +90,16 @@ namespace Shops.Services
 
         public bool MakeTransaction(Customer customer, List<Order> products)
         {
-            uint minimal = 0;
+            Money minimal = null;
             int minimalId = 0;
             var shopResponses = _shops.Select(i => i.FindProducts(products)).ToList();
-            foreach (ShopResponse i in shopResponses.Where(i => minimal == 0 || minimal > i.Price))
+            foreach (ShopResponse i in shopResponses.Where(i => minimal == null || minimal > i.Price))
             {
                 minimal = i.Price;
                 minimalId = i.ShopId;
             }
 
-            if (minimal == 0)
+            if (minimal == null)
             {
                 throw new ShopException("Couldn't find a shop with all products");
             }
@@ -118,18 +118,13 @@ namespace Shops.Services
             }
 
             _shops[shop.Id] = shop.Sell(products);
-            if (!customer.IsAbleToBuy(shopResponse.Price))
-            {
-                throw new ShopException("Customer don't have enough money");
-            }
-
             _customers[customer.Id] = customer.Buy(shopResponse.Price);
             return true;
         }
 
-        public bool SetPriceForProduct(Shop shop, string name, uint price)
+        public bool SetPriceForProduct(Shop shop, string name, int price)
         {
-            _shops[shop.Id] = shop.ChangePrice(name, price);
+            _shops[shop.Id] = shop.ChangePrice(name, new Money(price.ToString()));
             return true;
         }
     }

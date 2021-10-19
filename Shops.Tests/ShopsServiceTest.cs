@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Shops.Classes;
 using Shops.Services;
@@ -42,7 +43,7 @@ namespace Shops.Tests
             Shop shop = _shopsService.AddShop("Пятёрочка", "Пушкинская, 15");
             string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
             var listOfOrdersWithPrices = new List<OrderWithPrice>();
-            listOfOrdersWithPrices.Add(new OrderWithPrice(nameOfProduct, 0, 50));
+            listOfOrdersWithPrices.Add(new OrderWithPrice(nameOfProduct, 0, new Money("50")));
             _shopsService.AddProductsForShop(shop, listOfOrdersWithPrices);
             var listOfOrders = new List<Order> {new Order(nameOfProduct, 5)};
             _shopsService.AddProductsForShop(shop, listOfOrders);
@@ -54,7 +55,7 @@ namespace Shops.Tests
         {
             Shop shop = _shopsService.AddShop("Пятёрочка", "Пушкинская, 15");
             string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
-            var listOfOrders = new List<OrderWithPrice> {new OrderWithPrice(nameOfProduct, 5, 50)};
+            var listOfOrders = new List<OrderWithPrice> {new OrderWithPrice(nameOfProduct, 5, new Money("50"))};
             _shopsService.AddProductsForShop(shop, listOfOrders);
             Assert.True(shop.FindProducts(listOfOrders).IsShopHaveProducts);
         }
@@ -89,8 +90,8 @@ namespace Shops.Tests
             string nameOfSecondProduct = _shopsService.RegisterProduct("Молоко");
             var listOfOrders = new List<OrderWithPrice>
             {
-                new OrderWithPrice(nameOfFirstProduct, 5, 50),
-                new OrderWithPrice(nameOfSecondProduct, 5, 100)
+                new OrderWithPrice(nameOfFirstProduct, 5, new Money("50")),
+                new OrderWithPrice(nameOfSecondProduct, 5, new Money("100"))
             };
             Assert.True(_shopsService.AddProductsForShop(shop, listOfOrders));
         }
@@ -100,7 +101,7 @@ namespace Shops.Tests
         {
             Shop shop = _shopsService.AddShop("Пятёрочка", "Пушкинская, 15");
             string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
-            var listOfOrders = new List<OrderWithPrice> {new OrderWithPrice(nameOfProduct, 5, 50)};
+            var listOfOrders = new List<OrderWithPrice> {new OrderWithPrice(nameOfProduct, 5, new Money("50"))};
             _shopsService.AddProductsForShop(shop, listOfOrders);
             Assert.True(_shopsService.SetPriceForProduct(shop, nameOfProduct, 60));
         }
@@ -127,8 +128,8 @@ namespace Shops.Tests
                 string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
                 var listOfOrdersForFirst = new List<OrderWithPrice>();
                 var listOfOrdersForSecond = new List<OrderWithPrice>();
-                listOfOrdersForFirst.Add(new OrderWithPrice(nameOfProduct, 5, 50));
-                listOfOrdersForSecond.Add(new OrderWithPrice(nameOfProduct, 5, 50));
+                listOfOrdersForFirst.Add(new OrderWithPrice(nameOfProduct, 5, new Money("50")));
+                listOfOrdersForSecond.Add(new OrderWithPrice(nameOfProduct, 5, new Money("60")));
                 _shopsService.AddProductsForShop(firstShop, listOfOrdersForFirst);
                 _shopsService.AddProductsForShop(secondShop, listOfOrdersForSecond);
                 var listOfOrders = new List<Order> {new Order(nameOfProduct, 6)};
@@ -145,8 +146,8 @@ namespace Shops.Tests
             string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
             var listOfOrdersForFirst = new List<OrderWithPrice>();
             var listOfOrdersForSecond = new List<OrderWithPrice>();
-            listOfOrdersForFirst.Add(new OrderWithPrice(nameOfProduct, 5, 50));
-            listOfOrdersForSecond.Add(new OrderWithPrice(nameOfProduct, 5, 60));
+            listOfOrdersForFirst.Add(new OrderWithPrice(nameOfProduct, 5, new Money("50")));
+            listOfOrdersForSecond.Add(new OrderWithPrice(nameOfProduct, 5, new Money("60")));
             _shopsService.AddProductsForShop(firstShop, listOfOrdersForFirst);
             _shopsService.AddProductsForShop(secondShop, listOfOrdersForSecond);
             var listOfOrders = new List<Order> {new Order(nameOfProduct, 5)};
@@ -164,8 +165,8 @@ namespace Shops.Tests
                 string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
                 var listOfOrdersForFirst = new List<OrderWithPrice>();
                 var listOfOrdersForSecond = new List<OrderWithPrice>();
-                listOfOrdersForFirst.Add(new OrderWithPrice(nameOfProduct, 5, 50));
-                listOfOrdersForSecond.Add(new OrderWithPrice(nameOfProduct, 5, 60));
+                listOfOrdersForFirst.Add(new OrderWithPrice(nameOfProduct, 5, new Money("50")));
+                listOfOrdersForSecond.Add(new OrderWithPrice(nameOfProduct, 5, new Money("60")));
                 _shopsService.AddProductsForShop(firstShop, listOfOrdersForFirst);
                 _shopsService.AddProductsForShop(secondShop, listOfOrdersForSecond);
                 var listOfOrders = new List<Order> {new Order(nameOfProduct, 6)};

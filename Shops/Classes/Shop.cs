@@ -57,17 +57,17 @@ namespace Shops.Classes
 
         public ShopResponse FindProducts(List<Order> products)
         {
-            uint price = 0;
+            var price = new Money("0");
             foreach (Order i in products)
             {
                 if (!_products.ContainsKey(i.Product))
                 {
-                    return new ShopResponse(false, 0, Id);
+                    return new ShopResponse(false, null, Id);
                 }
 
                 if (_products[i.Product].Count < i.Count)
                 {
-                    return new ShopResponse(false, 0, Id);
+                    return new ShopResponse(false, null, Id);
                 }
 
                 price += _products[i.Product].Price * i.Count;
@@ -79,17 +79,17 @@ namespace Shops.Classes
 
         public ShopResponse FindProducts(List<OrderWithPrice> products)
         {
-            uint price = 0;
+            var price = new Money("0");
             foreach (OrderWithPrice i in products)
             {
                 if (!_products.ContainsKey(i.Product))
                 {
-                    return new ShopResponse(false, 0, Id);
+                    return new ShopResponse(false, null, Id);
                 }
 
                 if (_products[i.Product].Count < i.Count)
                 {
-                    return new ShopResponse(false, 0, Id);
+                    return new ShopResponse(false, null, Id);
                 }
 
                 price += _products[i.Product].Price * i.Count;
@@ -110,7 +110,7 @@ namespace Shops.Classes
             return new Shop(Id, Name, Address, changedProducts);
         }
 
-        public Shop ChangePrice(string name, uint newPrice)
+        public Shop ChangePrice(string name, Money newPrice)
         {
             if (!_products.ContainsKey(name))
             {
