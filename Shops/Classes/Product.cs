@@ -4,7 +4,7 @@ namespace Shops.Classes
     public class Product
     {
         private int _shopId;
-        public Product(string name, Money price, int shopId, int count)
+        public Product(string name, uint price, int shopId, uint count)
         {
             Name = name;
             Price = price;
@@ -12,21 +12,21 @@ namespace Shops.Classes
             Count = count;
         }
 
-        public Money Price { get; }
+        public uint Price { get; }
         public string Name { get; }
-        public int Count { get; }
+        public uint Count { get; }
 
-        public Product ChangePrice(Money newPrice)
+        public Product ChangePrice(uint newPrice)
         {
             return new Product(Name, newPrice, _shopId, Count);
         }
 
-        public Product Sell(int count)
+        public Product Sell(uint count)
         {
             return new Product(Name, Price, _shopId, Count - count);
         }
 
-        public Product Buy(int count)
+        public Product Buy(uint count)
         {
             return new Product(Name, Price, _shopId, Count + count);
         }
