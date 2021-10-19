@@ -57,7 +57,7 @@ namespace Shops.Classes
 
         public ShopResponse FindProducts(List<Order> products)
         {
-            var price = new Price("0");
+            var price = new Money("0");
             foreach (Order i in products)
             {
                 if (!_products.ContainsKey(i.Product))
@@ -79,7 +79,7 @@ namespace Shops.Classes
 
         public ShopResponse FindProducts(List<OrderWithPrice> products)
         {
-            var price = new Price("0");
+            var price = new Money("0");
             foreach (OrderWithPrice i in products)
             {
                 if (!_products.ContainsKey(i.Product))
@@ -110,7 +110,7 @@ namespace Shops.Classes
             return new Shop(Id, Name, Address, changedProducts);
         }
 
-        public Shop ChangePrice(string name, Price newPrice)
+        public Shop ChangePrice(string name, Money newPrice)
         {
             if (!_products.ContainsKey(name))
             {

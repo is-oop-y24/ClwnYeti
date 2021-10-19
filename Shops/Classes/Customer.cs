@@ -22,7 +22,7 @@ namespace Shops.Classes
         public int Id { get; }
         private Money Purse { get; }
 
-        public Customer Buy(Price price)
+        public Customer Buy(Money price)
         {
             return new Customer(Name, Purse - price, Id);
         }

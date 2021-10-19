@@ -54,7 +54,7 @@ namespace Shops.Services
                 throw new ShopException($"{name} isn't registered");
             }
 
-            _shops[shop.Id] = shop.AddProduct(new OrderWithPrice(name, count, new Price(price.ToString())));
+            _shops[shop.Id] = shop.AddProduct(new OrderWithPrice(name, count, new Money(price.ToString())));
             return true;
         }
 
@@ -90,7 +90,7 @@ namespace Shops.Services
 
         public bool MakeTransaction(Customer customer, List<Order> products)
         {
-            Price minimal = null;
+            Money minimal = null;
             int minimalId = 0;
             var shopResponses = _shops.Select(i => i.FindProducts(products)).ToList();
             foreach (ShopResponse i in shopResponses.Where(i => minimal == null || minimal > i.Price))
@@ -124,7 +124,7 @@ namespace Shops.Services
 
         public bool SetPriceForProduct(Shop shop, string name, int price)
         {
-            _shops[shop.Id] = shop.ChangePrice(name, new Price(price.ToString()));
+            _shops[shop.Id] = shop.ChangePrice(name, new Money(price.ToString()));
             return true;
         }
     }

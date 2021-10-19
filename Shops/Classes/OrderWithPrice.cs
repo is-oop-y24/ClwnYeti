@@ -2,12 +2,12 @@ namespace Shops.Classes
 {
     public class OrderWithPrice : Order
     {
-        public OrderWithPrice(string product, int count, Price price)
+        public OrderWithPrice(string product, int count, Money price)
             : base(product, count)
         {
             Price = price;
         }
 
-        public Price Price { get; }
+        public Money Price { get; }
     }
 }
