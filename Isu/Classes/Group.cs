@@ -19,9 +19,15 @@ namespace Isu.Classes
         public CourseNumber CourseNumber { get; }
         public int Id { get; }
         private int NumOfStudents { get; set; }
-        public static bool IsNameCorrect(string name)
+        public static bool IsGroupNameValidForIsuGroup(string name)
         {
             const string groupNameForCheck = @"[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2,3}";
+            return Regex.IsMatch(name, groupNameForCheck);
+        }
+
+        public static bool IsGroupNameValidForGsaGroup(string name)
+        {
+            const string groupNameForCheck = @"[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{1}"; // Department, Stream, Course, Group
             return Regex.IsMatch(name, groupNameForCheck);
         }
 

@@ -20,7 +20,7 @@ namespace Isu.Services
 
         public Group AddGroup(string name)
         {
-            if (Group.IsNameCorrect(name))
+            if (Group.IsGroupNameValidForIsuGroup(name))
             {
                 _groups.Add(new Group(name, _groups.Count, (CourseNumber)(name[2] - 48), _maxNumOfStudents));
                 return _groups[^1];
