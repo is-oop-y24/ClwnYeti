@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Isu.Classes;
 using Isu.Tools;
@@ -10,9 +11,11 @@ namespace Isu.Services
         private readonly int _maxNumOfStudents;
         private readonly List<Student> _students;
         private readonly List<Group> _groups;
+        private readonly List<Lesson> _isuGroupLessons;
 
         public IsuService()
         {
+            _isuGroupLessons = new List<Lesson>();
             _maxNumOfStudents = 30;
             _students = new List<Student>();
             _groups = new List<Group>();
@@ -33,14 +36,14 @@ namespace Isu.Services
 
         public Student AddStudent(Group group, string name)
         {
-            _students.Add(new Student(group.Id, name, _students.Count, group.CourseNumber));
-            group.AddStudent();
+            _students.Add(new Student(group.Id, name, new Id(_students.Count), group.CourseNumber));
+            _groups[group.Id.Value] = group.AddStudent();
             return _students[^1];
         }
 
         public Student GetStudent(int id)
         {
-            foreach (Student i in _students.Where(i => i.Id == id))
+            foreach (Student i in _students.Where(i => i.Id.Value == id))
             {
                 return i;
             }
@@ -79,6 +82,16 @@ namespace Isu.Services
             return _groups.FirstOrDefault(i => i.Name == groupName);
         }
 
+        public Group GetGroup(Id groupId)
+        {
+            foreach (Group g in _groups.Where(g => g.Id == groupId))
+            {
+                return g;
+            }
+
+            throw new IsuException($"Gsa group with Id {groupId.Value} doesn't exist");
+        }
+
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
             return _groups.Where(i => i.CourseNumber == courseNumber).ToList();
@@ -88,11 +101,27 @@ namespace Isu.Services
         {
             foreach (Group j in _groups.Where(j => j.Id == student.GroupId))
             {
-                j.DeleteStudent();
+                _groups[j.Id.Value] = j.DeleteStudent();
             }
 
-            newGroup.AddStudent();
-            student.GroupId = newGroup.Id;
+            _groups[newGroup.Id.Value] = newGroup.AddStudent();
+            _students[student.Id.Value] = student.ChangeGroup(newGroup.Id.Value);
         }
-    }
+
+        public Lesson AddLesson(Group group, TimeSpan startTime, DayOfWeek dayOfWeek, string cabinet, string nameOfTeacher)
+        {
+            _isuGroupLessons.Add(new Lesson(startTime, group.Id, dayOfWeek, cabinet, nameOfTeacher));
+            return _isuGroupLessons[^1];
+        }
+
+        public List<Lesson> GetLessonsOfGroup(int groupId)
+        {
+            return _isuGroupLessons.Where(l => l.GroupId.Value == groupId).ToList();
+        }
+
+        public List<Student> AllStudents()
+        {
+            return _students;
+        }
+}
 }

@@ -10,15 +10,24 @@ namespace Isu.Classes
         {
             Name = name;
             NumOfStudents = 0;
-            Id = id;
+            Id = new Id(id);
             CourseNumber = courseNumber;
             _maxNumOfStudents = maxNumOfStudents;
         }
 
+        private Group(Group other, int numOfStudents)
+        {
+            Name = other.Name;
+            NumOfStudents = numOfStudents;
+            Id = other.Id;
+            CourseNumber = other.CourseNumber;
+            _maxNumOfStudents = other._maxNumOfStudents;
+        }
+
         public string Name { get; }
         public CourseNumber CourseNumber { get; }
-        public int Id { get; }
-        private int NumOfStudents { get; set; }
+        public Id Id { get; }
+        private int NumOfStudents { get; }
         public static bool IsGroupNameValidForIsuGroup(string name)
         {
             const string groupNameForCheck = @"[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2,3}";
@@ -31,33 +40,29 @@ namespace Isu.Classes
             return Regex.IsMatch(name, groupNameForCheck);
         }
 
-        public void AddStudent()
+        public Group AddStudent()
         {
-            if (!IsGroupCrowded())
+            if (IsNumOfStudentsValid(NumOfStudents + 1))
             {
-                NumOfStudents += 1;
+                return new Group(this, NumOfStudents + 1);
             }
-            else
-            {
-                throw new IsuException($"Group \"{Name}\" is crowded");
-            }
+
+            throw new IsuException($"Group \"{Name}\" is crowded");
         }
 
-        public void DeleteStudent()
+        public Group DeleteStudent()
         {
-            if (NumOfStudents > 0)
+            if (IsNumOfStudentsValid(NumOfStudents - 1))
             {
-                NumOfStudents -= 1;
+                return new Group(this, NumOfStudents + 1);
             }
-            else
-            {
-                throw new IsuException($"Group \"{Name}\" is empty");
-            }
+
+            throw new IsuException($"Group \"{Name}\" is empty");
         }
 
-        private bool IsGroupCrowded()
+        private bool IsNumOfStudentsValid(int numOfStudents)
         {
-            return NumOfStudents >= _maxNumOfStudents;
+            return numOfStudents <= _maxNumOfStudents && numOfStudents >= 0;
         }
     }
 }
