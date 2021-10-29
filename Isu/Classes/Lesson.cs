@@ -21,26 +21,26 @@ namespace Isu.Classes
         public static bool LessonsHaveCollision(Lesson first, Lesson second)
         {
             if (first.DayOfWeek != second.DayOfWeek) return false;
-            if (first.StartTime + new TimeSpan(1, 30, 0) < second.StartTime
+            if (first.StartTime + new TimeSpan(1, 30, 0) > second.StartTime
                 && second.StartTime >= first.StartTime)
             {
                 return true;
             }
 
-            return second.StartTime + new TimeSpan(1, 30, 0) < first.StartTime
+            return second.StartTime + new TimeSpan(1, 30, 0) > first.StartTime
                    && first.StartTime >= second.StartTime;
         }
 
         public bool LessonHaveCollisionWithAnother(TimeSpan startTime, DayOfWeek dayOfWeek)
         {
             if (DayOfWeek != dayOfWeek) return false;
-            if (StartTime + new TimeSpan(1, 30, 0) < startTime
+            if (StartTime + new TimeSpan(1, 30, 0) > startTime
                 && startTime >= StartTime)
             {
                 return true;
             }
 
-            return startTime + new TimeSpan(1, 30, 0) < StartTime
+            return startTime + new TimeSpan(1, 30, 0) > StartTime
                    && StartTime >= startTime;
         }
     }

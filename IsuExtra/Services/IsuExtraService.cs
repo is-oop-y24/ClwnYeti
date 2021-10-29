@@ -25,20 +25,30 @@ namespace IsuExtra.Services
 
         public Group AddGsaGroup(string name)
         {
+            if (!Group.IsGroupNameValidForGsaGroup(name))
+            {
+                throw new IsuExtraException($"Group name \"{name}\" is invalid for GSA Group");
+            }
+
             return _gsaService.AddGsaGroup(name);
         }
 
         public void AddGsaGroupForStudent(Student student, Group group)
         {
-            Group isuGroup = _isuService.GetGroup(group.Id);
+            if (!Group.IsGroupNameValidForGsaGroup(group.Name))
+            {
+                throw new IsuExtraException("Group isn't GSA group");
+            }
+
+            Group isuGroup = _isuService.GetGroup(student.GroupId);
             if (isuGroup.Name[0] == group.Name[0])
             {
                 throw new IsuExtraException("Student's department is equal to department of GSA group");
             }
 
-            if (student.CourseNumber == group.CourseNumber)
+            if (student.CourseNumber != group.CourseNumber)
             {
-                throw new IsuExtraException("Student ");
+                throw new IsuExtraException("Student isn't on the course of GSA group");
             }
 
             if (IsGroupHaveCollisionWithGsaGroup(isuGroup.Id, group.Id, false))

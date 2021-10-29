@@ -30,12 +30,17 @@ namespace Isu.Services
             }
             else
             {
-                throw new IsuException($"Group name \"{name}\" is invalid");
+                throw new IsuException($"Group name \"{name}\" is invalid for Isu Group");
             }
         }
 
         public Student AddStudent(Group group, string name)
         {
+            if (!Group.IsGroupNameValidForIsuGroup(group.Name))
+            {
+                throw new IsuException($"Group isn't ISU group");
+            }
+
             _students.Add(new Student(group.Id, name, new Id(_students.Count), group.CourseNumber));
             _groups[group.Id.Value] = group.AddStudent();
             return _students[^1];
