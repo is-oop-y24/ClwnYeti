@@ -42,7 +42,7 @@ namespace Isu.Services
             }
 
             _students.Add(new Student(group.Id, name, new Id(_students.Count), group.CourseNumber));
-            _groups[group.Id.Value] = group.AddStudent();
+            _groups[group.Id.Value] = _groups[group.Id.Value].AddStudent();
             return _students[^1];
         }
 
@@ -89,7 +89,7 @@ namespace Isu.Services
 
         public Group GetGroup(Id groupId)
         {
-            foreach (Group g in _groups.Where(g => g.Id == groupId))
+            foreach (Group g in _groups.Where(g => g.Id.Value == groupId.Value))
             {
                 return g;
             }
@@ -104,13 +104,20 @@ namespace Isu.Services
 
         public void ChangeStudentGroup(Student student, Group newGroup)
         {
-            foreach (Group j in _groups.Where(j => j.Id == student.GroupId))
+            Group group = null;
+            foreach (Group j in _groups.Where(j => j.Id.Value == student.GroupId.Value))
             {
-                _groups[j.Id.Value] = j.DeleteStudent();
+                group = j.DeleteStudent();
             }
 
-            _groups[newGroup.Id.Value] = newGroup.AddStudent();
-            _students[student.Id.Value] = student.ChangeGroup(newGroup.Id.Value);
+            if (group == null)
+            {
+                throw new IsuException("Student doesn't have a group");
+            }
+
+            _groups[group.Id.Value] = group;
+            _groups[newGroup.Id.Value] = _groups[newGroup.Id.Value].AddStudent();
+            _students[student.Id.Value] = student.ChangeGroup(newGroup.Id);
         }
 
         public Lesson AddLesson(Group group, TimeSpan startTime, DayOfWeek dayOfWeek, string cabinet, string nameOfTeacher)

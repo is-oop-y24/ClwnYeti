@@ -52,7 +52,7 @@ namespace Isu.Tests
             Student student = _isuService.AddStudent(firstGroup, "Миксаил Кузутов");
             Group secondGroup = _isuService.AddGroup("M3201");
             _isuService.ChangeStudentGroup(student, secondGroup);
-            Assert.True(student.GroupId == secondGroup.Id);
+            Assert.True(_isuService.FindStudent(student.Name).GroupId.Value == secondGroup.Id.Value);
         }
     }
 }

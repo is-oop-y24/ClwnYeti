@@ -47,14 +47,14 @@ namespace Isu.Classes
                 return new Group(this, NumOfStudents + 1);
             }
 
-            throw new IsuException($"Group \"{Name}\" is crowded");
+            throw new IsuException($"Group \"{Name}\" is overcrowded");
         }
 
         public Group DeleteStudent()
         {
             if (IsNumOfStudentsValid(NumOfStudents - 1))
             {
-                return new Group(this, NumOfStudents + 1);
+                return new Group(this, NumOfStudents - 1);
             }
 
             throw new IsuException($"Group \"{Name}\" is empty");

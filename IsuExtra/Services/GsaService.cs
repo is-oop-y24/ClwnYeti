@@ -67,7 +67,7 @@ namespace IsuExtra.Services
 
         public List<Id> GetStudentsIdOfGsaGroup(Id groupId)
         {
-            return (from g in _gsaInfo where g.FirstGsaGroupId == groupId || g.SecondGsaGroupId == groupId select g.StudentId).ToList();
+            return (from g in _gsaInfo where g.FirstGsaGroupId.Value == groupId.Value || g.SecondGsaGroupId.Value == groupId.Value select g.StudentId).ToList();
         }
 
         public void AddGsaGroupForStudent(Student student, Group gsaGroup)
@@ -85,7 +85,7 @@ namespace IsuExtra.Services
                 throw new IsuExtraException("Student already had two GSA groups");
             }
 
-            _gsaGroups[gsaGroup.Id.Value] = gsaGroup.AddStudent();
+            _gsaGroups[gsaGroup.Id.Value] = _gsaGroups[gsaGroup.Id.Value].AddStudent();
         }
 
         public Lesson AddLesson(Group group, TimeSpan startTime, DayOfWeek dayOfWeek, string cabinet, string nameOfTeacher)
@@ -120,12 +120,12 @@ namespace IsuExtra.Services
             }
 
             GsaInfoAboutStudent gsaInfoAboutStudent = GetGsaInfoOfStudent(studentId);
-            if (gsaInfoAboutStudent.FirstGsaGroupId == group.Id)
+            if (gsaInfoAboutStudent.FirstGsaGroupId.Value == group.Id.Value)
             {
                 _gsaInfo[studentId.Value] =
                     new GsaInfoAboutStudent(new Id(-1), gsaInfoAboutStudent.SecondGsaGroupId, studentId);
             }
-            else if (gsaInfoAboutStudent.SecondGsaGroupId == group.Id)
+            else if (gsaInfoAboutStudent.SecondGsaGroupId.Value == group.Id.Value)
             {
                 _gsaInfo[studentId.Value] =
                     new GsaInfoAboutStudent(gsaInfoAboutStudent.FirstGsaGroupId, new Id(-1), studentId);
@@ -134,16 +134,18 @@ namespace IsuExtra.Services
             {
                 throw new IsuExtraException("Student isn't in this gsa group");
             }
+
+            _gsaGroups[group.Id.Value] = _gsaGroups[group.Id.Value].DeleteStudent();
         }
 
         private Group FindGroup(Id groupId)
         {
-            return _gsaGroups.FirstOrDefault(g => g.Id == groupId);
+            return _gsaGroups.FirstOrDefault(g => g.Id.Value == groupId.Value);
         }
 
         private GsaInfoAboutStudent GetGsaInfoOfStudent(Id studentId)
         {
-            return _gsaInfo.FirstOrDefault(g => g.StudentId == studentId);
+            return _gsaInfo.FirstOrDefault(g => g.StudentId.Value == studentId.Value);
         }
     }
 }

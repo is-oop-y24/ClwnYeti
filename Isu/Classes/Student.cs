@@ -18,9 +18,9 @@
             Name = name;
         }
 
-        private Student(Student other, int newGroupId)
+        private Student(Student other, Id newGroupId)
         {
-            GroupId = new Id(newGroupId);
+            GroupId = newGroupId;
             Id = other.Id;
             CourseNumber = other.CourseNumber;
             Name = other.Name;
@@ -31,7 +31,7 @@
         public Id GroupId { get; }
         public CourseNumber CourseNumber { get; }
 
-        public Student ChangeGroup(int newGroupId)
+        public Student ChangeGroup(Id newGroupId)
         {
             return new Student(this, newGroupId);
         }
