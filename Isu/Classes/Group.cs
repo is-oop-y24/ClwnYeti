@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Isu.Tools;
+﻿using Isu.Tools;
 
 namespace Isu.Classes
 {
@@ -8,61 +7,57 @@ namespace Isu.Classes
         private readonly int _maxNumOfStudents;
         public Group(string name, int id, CourseNumber courseNumber, int maxNumOfStudents)
         {
-            Name = name;
-            NumOfStudents = 0;
-            Id = new Id(id);
-            CourseNumber = courseNumber;
-            _maxNumOfStudents = maxNumOfStudents;
-        }
-
-        private Group(Group other, int numOfStudents)
-        {
-            Name = other.Name;
-            NumOfStudents = numOfStudents;
-            Id = other.Id;
-            CourseNumber = other.CourseNumber;
-            _maxNumOfStudents = other._maxNumOfStudents;
+            if (IsNameCorrect(name))
+            {
+                Name = name;
+                NumOfStudents = 0;
+                Id = id;
+                CourseNumber = courseNumber;
+                _maxNumOfStudents = maxNumOfStudents;
+            }
+            else
+            {
+                throw new IsuException($"Group name \"{name}\" is invalid");
+            }
         }
 
         public string Name { get; }
         public CourseNumber CourseNumber { get; }
-        public Id Id { get; }
-        private int NumOfStudents { get; }
-        public static bool IsGroupNameValidForIsuGroup(string name)
-        {
-            const string groupNameForCheck = @"^[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2,3}$";
-            return Regex.IsMatch(name, groupNameForCheck);
-        }
+        public int Id { get; }
+        private int NumOfStudents { get; set; }
 
-        public static bool IsGroupNameValidForGsaGroup(string name)
+        public void AddStudent()
         {
-            const string groupNameForCheck = @"^[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{1}$"; // Department, Stream, Course, Group
-            return Regex.IsMatch(name, groupNameForCheck);
-        }
-
-        public Group AddStudent()
-        {
-            if (IsNumOfStudentsValid(NumOfStudents + 1))
+            if (!IsGroupCrowded())
             {
-                return new Group(this, NumOfStudents + 1);
+                NumOfStudents += 1;
             }
-
-            throw new IsuException($"Group \"{Name}\" is overcrowded");
-        }
-
-        public Group DeleteStudent()
-        {
-            if (IsNumOfStudentsValid(NumOfStudents - 1))
+            else
             {
-                return new Group(this, NumOfStudents - 1);
+                throw new IsuException($"Group \"{Name}\" is crowded");
             }
-
-            throw new IsuException($"Group \"{Name}\" is empty");
         }
 
-        private bool IsNumOfStudentsValid(int numOfStudents)
+        public void DeleteStudent()
         {
-            return numOfStudents <= _maxNumOfStudents && numOfStudents >= 0;
+            if (NumOfStudents > 0)
+            {
+                NumOfStudents -= 1;
+            }
+            else
+            {
+                throw new IsuException($"Group \"{Name}\" is empty");
+            }
+        }
+
+        private bool IsNameCorrect(string name)
+        {
+            return name.Length == 5 && name[0] == 'M' && name[1] == '3' && name[2] > '0' && name[2] <= '4';
+        }
+
+        private bool IsGroupCrowded()
+        {
+            return NumOfStudents >= _maxNumOfStudents;
         }
     }
 }

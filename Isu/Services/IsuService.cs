@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Isu.Classes;
 using Isu.Tools;
@@ -11,11 +10,9 @@ namespace Isu.Services
         private readonly int _maxNumOfStudents;
         private readonly List<Student> _students;
         private readonly List<Group> _groups;
-        private readonly List<Lesson> _isuGroupLessons;
 
         public IsuService()
         {
-            _isuGroupLessons = new List<Lesson>();
             _maxNumOfStudents = 30;
             _students = new List<Student>();
             _groups = new List<Group>();
@@ -23,32 +20,20 @@ namespace Isu.Services
 
         public Group AddGroup(string name)
         {
-            if (Group.IsGroupNameValidForIsuGroup(name))
-            {
-                _groups.Add(new Group(name, _groups.Count, (CourseNumber)(name[2] - 48), _maxNumOfStudents));
-                return _groups[^1];
-            }
-            else
-            {
-                throw new IsuException($"Group name \"{name}\" is invalid for Isu Group");
-            }
+            _groups.Add(new Group(name, _groups.Count, (CourseNumber)(name[2] - 48), _maxNumOfStudents));
+            return _groups[^1];
         }
 
         public Student AddStudent(Group group, string name)
         {
-            if (!Group.IsGroupNameValidForIsuGroup(group.Name))
-            {
-                throw new IsuException($"Group isn't ISU group");
-            }
-
-            _students.Add(new Student(group.Id, name, new Id(_students.Count), group.CourseNumber));
-            _groups[group.Id.Value] = _groups[group.Id.Value].AddStudent();
+            _students.Add(new Student(group.Id, name, _students.Count, group.CourseNumber));
+            group.AddStudent();
             return _students[^1];
         }
 
         public Student GetStudent(int id)
         {
-            foreach (Student i in _students.Where(i => i.Id.Value == id))
+            foreach (Student i in _students.Where(i => i.Id == id))
             {
                 return i;
             }
@@ -87,16 +72,6 @@ namespace Isu.Services
             return _groups.FirstOrDefault(i => i.Name == groupName);
         }
 
-        public Group GetGroup(Id groupId)
-        {
-            foreach (Group g in _groups.Where(g => g.Id.Value == groupId.Value))
-            {
-                return g;
-            }
-
-            throw new IsuException($"Gsa group with Id {groupId.Value} doesn't exist");
-        }
-
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
             return _groups.Where(i => i.CourseNumber == courseNumber).ToList();
@@ -104,36 +79,13 @@ namespace Isu.Services
 
         public void ChangeStudentGroup(Student student, Group newGroup)
         {
-            Group group = null;
-            foreach (Group j in _groups.Where(j => j.Id.Value == student.GroupId.Value))
+            foreach (Group j in _groups.Where(j => j.Id == student.GroupId))
             {
-                group = j.DeleteStudent();
+                j.DeleteStudent();
             }
 
-            if (group == null)
-            {
-                throw new IsuException("Student doesn't have a group");
-            }
-
-            _groups[group.Id.Value] = group;
-            _groups[newGroup.Id.Value] = _groups[newGroup.Id.Value].AddStudent();
-            _students[student.Id.Value] = student.ChangeGroup(newGroup.Id);
+            newGroup.AddStudent();
+            student.GroupId = newGroup.Id;
         }
-
-        public Lesson AddLesson(Group group, TimeSpan startTime, DayOfWeek dayOfWeek, string cabinet, string nameOfTeacher)
-        {
-            _isuGroupLessons.Add(new Lesson(startTime, group.Id, dayOfWeek, cabinet, nameOfTeacher));
-            return _isuGroupLessons[^1];
-        }
-
-        public List<Lesson> GetLessonsOfGroup(int groupId)
-        {
-            return _isuGroupLessons.Where(l => l.GroupId.Value == groupId).ToList();
-        }
-
-        public List<Student> AllStudents()
-        {
-            return _students;
-        }
-}
+    }
 }
