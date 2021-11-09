@@ -1,4 +1,5 @@
-﻿using Isu.Tools;
+﻿using System.Text.RegularExpressions;
+using Isu.Tools;
 
 namespace Isu.Classes
 {
@@ -7,57 +8,61 @@ namespace Isu.Classes
         private readonly int _maxNumOfStudents;
         public Group(string name, int id, CourseNumber courseNumber, int maxNumOfStudents)
         {
-            if (IsNameCorrect(name))
-            {
-                Name = name;
-                NumOfStudents = 0;
-                Id = id;
-                CourseNumber = courseNumber;
-                _maxNumOfStudents = maxNumOfStudents;
-            }
-            else
-            {
-                throw new IsuException($"Group name \"{name}\" is invalid");
-            }
+            Name = name;
+            NumOfStudents = 0;
+            Id = new Id(id);
+            CourseNumber = courseNumber;
+            _maxNumOfStudents = maxNumOfStudents;
+        }
+
+        private Group(Group other, int numOfStudents)
+        {
+            Name = other.Name;
+            NumOfStudents = numOfStudents;
+            Id = other.Id;
+            CourseNumber = other.CourseNumber;
+            _maxNumOfStudents = other._maxNumOfStudents;
         }
 
         public string Name { get; }
         public CourseNumber CourseNumber { get; }
-        public int Id { get; }
-        private int NumOfStudents { get; set; }
-
-        public void AddStudent()
+        public Id Id { get; }
+        private int NumOfStudents { get; }
+        public static bool IsGroupNameValidForIsuGroup(string name)
         {
-            if (!IsGroupCrowded())
-            {
-                NumOfStudents += 1;
-            }
-            else
-            {
-                throw new IsuException($"Group \"{Name}\" is crowded");
-            }
+            const string groupNameForCheck = @"^[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{2,3}$";
+            return Regex.IsMatch(name, groupNameForCheck);
         }
 
-        public void DeleteStudent()
+        public static bool IsGroupNameValidForGsaGroup(string name)
         {
-            if (NumOfStudents > 0)
-            {
-                NumOfStudents -= 1;
-            }
-            else
-            {
-                throw new IsuException($"Group \"{Name}\" is empty");
-            }
+            const string groupNameForCheck = @"^[A-Z]{1}[0-9]{1}[1-5]{1}[0-9]{1}$"; // Department, Stream, Course, Group
+            return Regex.IsMatch(name, groupNameForCheck);
         }
 
-        private bool IsNameCorrect(string name)
+        public Group AddStudent()
         {
-            return name.Length == 5 && name[0] == 'M' && name[1] == '3' && name[2] > '0' && name[2] <= '4';
+            if (IsNumOfStudentsValid(NumOfStudents + 1))
+            {
+                return new Group(this, NumOfStudents + 1);
+            }
+
+            throw new IsuException($"Group \"{Name}\" is overcrowded");
         }
 
-        private bool IsGroupCrowded()
+        public Group DeleteStudent()
         {
-            return NumOfStudents >= _maxNumOfStudents;
+            if (IsNumOfStudentsValid(NumOfStudents - 1))
+            {
+                return new Group(this, NumOfStudents - 1);
+            }
+
+            throw new IsuException($"Group \"{Name}\" is empty");
+        }
+
+        private bool IsNumOfStudentsValid(int numOfStudents)
+        {
+            return numOfStudents <= _maxNumOfStudents && numOfStudents >= 0;
         }
     }
 }
