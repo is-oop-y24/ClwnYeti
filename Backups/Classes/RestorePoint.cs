@@ -6,17 +6,22 @@ namespace Backups.Classes
 {
     public class RestorePoint
     {
-        private List<JobName> _jobNamesInRestorePoint;
-        public RestorePoint(int id, IEnumerable<JobName> jobNames, AlgorithmOfStorage algorithmOfStorage)
+        private List<Storage> _storages;
+        public RestorePoint(int id, List<Storage> storages)
         {
             Id = id;
-            AlgorithmOfStorage = algorithmOfStorage;
             Date = DateTime.Today;
-            _jobNamesInRestorePoint = jobNames.Select(n => new JobName(n.Value + "_" + id)).ToList();
+            _storages = storages;
+        }
+
+        public RestorePoint(int id, List<Storage> storages, DateTime dateTime)
+        {
+            Id = id;
+            Date = dateTime;
+            _storages = storages;
         }
 
         public int Id { get; }
-        public AlgorithmOfStorage AlgorithmOfStorage { get; }
         private DateTime Date { get; }
     }
 }
