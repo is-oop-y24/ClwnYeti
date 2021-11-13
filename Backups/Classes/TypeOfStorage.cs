@@ -1,6 +1,6 @@
 namespace Backups.Classes
 {
-    public enum AlgorithmOfStorage
+    public enum TypeOfStorage
     {
         SplitStorages,
         SingleStorage,
