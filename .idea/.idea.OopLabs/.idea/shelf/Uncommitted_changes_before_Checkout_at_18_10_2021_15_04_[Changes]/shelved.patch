@@ -1,0 +1,113 @@
+Index: Shops/Classes/Money.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System.Linq;\r\nusing Shops.Tools;\r\n\r\nnamespace Shops.Classes\r\n{\r\n    public abstract class Money\r\n    {\r\n        protected Money(string value)\r\n        {\r\n            if (!IsValueOk(value)) throw new ShopException($\"{value} can't be amount of money\");\r\n            Value = value;\r\n            DeleteNulls();\r\n        }\r\n\r\n        protected Money(int value)\r\n        {\r\n            if (!IsValueOk(value.ToString())) throw new ShopException($\"{value} can't be amount of money\");\r\n            Value = value.ToString();\r\n        }\r\n\r\n        public string Value { get; private set; }\r\n\r\n        public static bool operator <(Money first, Money second)\r\n        {\r\n            if (first.Value.Length > second.Value.Length) return false;\r\n            if (first.Value.Length < second.Value.Length) return true;\r\n            for (int i = 0; i < first.Value.Length; i++)\r\n            {\r\n                if (first.Value[i] > second.Value[i]) return false;\r\n                if (first.Value[i] < second.Value[i]) return true;\r\n            }\r\n\r\n            return false;\r\n        }\r\n\r\n        public static bool operator >(Money first, Money second)\r\n        {\r\n            if (first.Value.Length < second.Value.Length) return false;\r\n            if (first.Value.Length > second.Value.Length) return true;\r\n            for (int i = 0; i < first.Value.Length; i++)\r\n            {\r\n                if (first.Value[i] < second.Value[i]) return false;\r\n                if (first.Value[i] > second.Value[i]) return true;\r\n            }\r\n\r\n            return false;\r\n        }\r\n\r\n        public static bool operator >=(Money first, Money second)\r\n        {\r\n            return !(first < second);\r\n        }\r\n\r\n        public static bool operator <=(Money first, Money second)\r\n        {\r\n            return !(first > second);\r\n        }\r\n\r\n        private bool IsValueOk(string value)\r\n        {\r\n            return value.All(i => i >= '0' && i <= '9');\r\n        }\r\n\r\n        private void DeleteNulls()\r\n        {\r\n            int i = 0;\r\n            while (i < Value.Length && Value[i] == '0')\r\n            {\r\n                i++;\r\n            }\r\n\r\n            Value = Value.Substring(i);\r\n        }\r\n    }\r\n}
+===================================================================
+diff --git a/Shops/Classes/Money.cs b/Shops/Classes/Money.cs
+--- a/Shops/Classes/Money.cs	
++++ b/Shops/Classes/Money.cs	
+@@ -3,21 +3,26 @@
+ 
+ namespace Shops.Classes
+ {
+-    public abstract class Money
++    public class Money
+     {
+-        protected Money(string value)
++        public Money(string value)
+         {
+             if (!IsValueOk(value)) throw new ShopException($"{value} can't be amount of money");
+             Value = value;
+             DeleteNulls();
+         }
+ 
+-        protected Money(int value)
++        public Money(int value)
+         {
+             if (!IsValueOk(value.ToString())) throw new ShopException($"{value} can't be amount of money");
+             Value = value.ToString();
+         }
+ 
++        public Money(Money other)
++        {
++            Value = other.Value;
++        }
++
+         public string Value { get; private set; }
+ 
+         public static bool operator <(Money first, Money second)
+@@ -56,6 +61,42 @@
+             return !(first > second);
+         }
+ 
++        public static Money operator -(Money first, Money second)
++        {
++            if (first < second)
++            {
++                throw new ShopException("Not enough money to make a transaction");
++            }
++
++            string result = string.Empty;
++            string max = first.Value;
++            string min = string.Empty;
++            for (int i = 0; i < first.Value.Length - second.Value.Length; i++)
++            {
++                min += '0';
++            }
++
++            min += second.Value;
++            int t = 0;
++            for (int i = 0; i < first.Value.Length; i++)
++            {
++                int s = max[^(i + 1)] - min[^(i + 1)] - t;
++                if (s < 0)
++                {
++                    s += 10;
++                    t = 1;
++                }
++                else
++                {
++                    t = 0;
++                }
++
++                result = (char)(s + 48) + result;
++            }
++
++            return new Money(result);
++        }
++
+         private bool IsValueOk(string value)
+         {
+             return value.All(i => i >= '0' && i <= '9');
+Index: Shops/Classes/Customer.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\r\n\r\nnamespace Shops.Classes\r\n{\r\n    public class Customer\r\n    {\r\n        public Customer(string name, string amountOfMoney, int id)\r\n        {\r\n            Name = name;\r\n            Id = id;\r\n            Purse = new Purse(amountOfMoney);\r\n        }\r\n\r\n        public Customer(string name, Purse amountOfMoney, int id)\r\n        {\r\n            Name = name;\r\n            Id = id;\r\n            Purse = new Purse(amountOfMoney);\r\n        }\r\n\r\n        public string Name { get; }\r\n        public int Id { get; }\r\n        private Purse Purse { get; }\r\n\r\n        public Customer Buy(Price price)\r\n        {\r\n            return new Customer(Name, Purse - price, Id);\r\n        }\r\n    }\r\n}
+===================================================================
+diff --git a/Shops/Classes/Customer.cs b/Shops/Classes/Customer.cs
+--- a/Shops/Classes/Customer.cs	
++++ b/Shops/Classes/Customer.cs	
+@@ -8,19 +8,19 @@
+         {
+             Name = name;
+             Id = id;
+-            Purse = new Purse(amountOfMoney);
++            Purse = new Money(amountOfMoney);
+         }
+ 
+-        public Customer(string name, Purse amountOfMoney, int id)
++        private Customer(string name, Money amountOfMoney, int id)
+         {
+             Name = name;
+             Id = id;
+-            Purse = new Purse(amountOfMoney);
++            Purse = new Money(amountOfMoney);
+         }
+ 
+         public string Name { get; }
+         public int Id { get; }
+-        private Purse Purse { get; }
++        private Money Purse { get; }
+ 
+         public Customer Buy(Price price)
+         {
