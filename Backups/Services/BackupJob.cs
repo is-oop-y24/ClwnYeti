@@ -10,23 +10,12 @@ namespace Backups.Services
         private readonly List<JobObject> _currentJobObjects;
         private readonly List<RestorePoint> _restorePoints;
         private IArchiver _archiver;
-        public BackupJob(TypeOfStorage algorithmOfStorage)
+        public BackupJob(IArchiver algorithmOfStorage)
         {
-            AlgorithmOfStorage = algorithmOfStorage;
-            if (AlgorithmOfStorage == TypeOfStorage.SingleStorage)
-            {
-                _archiver = new SingleStorageArchiver();
-            }
-            else
-            {
-                _archiver = new SplitStoragesArchiver();
-            }
-
+            _archiver = algorithmOfStorage;
             _restorePoints = new List<RestorePoint>();
             _currentJobObjects = new List<JobObject>();
         }
-
-        public TypeOfStorage AlgorithmOfStorage { get; }
 
         public JobObject CreateJobObject(FileStream fileStream)
         {
