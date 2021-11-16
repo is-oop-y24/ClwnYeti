@@ -1,27 +1,26 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using Backups.Interfaces;
 
 namespace Backups.Classes
 {
     public class RestorePoint
     {
-        private List<Storage> _storages;
-        public RestorePoint(int id, List<Storage> storages)
+        private IStorageRepository _storages;
+        public RestorePoint(int number, IStorageRepository storages)
         {
-            Id = id;
+            Number = number;
             Date = DateTime.Today;
             _storages = storages;
         }
 
-        public RestorePoint(int id, List<Storage> storages, DateTime dateTime)
+        public RestorePoint(int number, IStorageRepository storages, DateTime dateTime)
         {
-            Id = id;
+            Number = number;
             Date = dateTime;
             _storages = storages;
         }
 
-        public int Id { get; }
-        private DateTime Date { get; }
+        public int Number { get; }
+        public DateTime Date { get; }
     }
 }
