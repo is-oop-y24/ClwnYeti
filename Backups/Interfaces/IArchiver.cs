@@ -5,6 +5,6 @@ namespace Backups.Interfaces
 {
     public interface IArchiver
     {
-        public IEnumerable<Storage> Store(string directory, List<JobObject> jobObjects);
+        public IStorageRepository Store(IStorageRepository repository, string directory, List<JobObject> jobObjects);
     }
 }

@@ -6,9 +6,14 @@ namespace Backups.Services
 {
     public class SplitStoragesArchiver : IArchiver
     {
-        public IEnumerable<Storage> Store(string directory, List<JobObject> jobObjects)
+        public IStorageRepository Store(IStorageRepository repository, string directory, List<JobObject> jobObjects)
         {
-            throw new System.NotImplementedException();
+            foreach (JobObject j in jobObjects)
+            {
+                repository.Add(j, directory);
+            }
+
+            return repository;
         }
     }
 }
