@@ -33,5 +33,25 @@ namespace Backups.Classes
             _storages.Add(new Storage(id, directory + "/" + id, jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList()));
             return _storages[^1];
         }
+
+        public Storage Add(JobObject jobObject, string directory)
+        {
+            var id = Guid.NewGuid();
+            ZipArchive zipArchive = ZipFile.Open(directory + "/" + id, ZipArchiveMode.Update);
+            if (!File.Exists(jobObject.Path))
+            {
+                throw new BackupsException($"File {jobObject.Path} doesn't exist");
+            }
+
+            zipArchive.CreateEntryFromFile(jobObject.Path, 0.ToString());
+
+            _storages.Add(new Storage(id, directory + "/" + id, new ArchivedFilePath(jobObject.Path)));
+            return _storages[^1];
+        }
+
+        IStorageRepository IStorageRepository.Empty()
+        {
+            return new StorageRepositoryWithFileSystem();
+        }
     }
 }

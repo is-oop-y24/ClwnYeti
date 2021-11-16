@@ -12,6 +12,13 @@ namespace Backups.Classes
             Objects = objects;
         }
 
+        public Storage(Guid id, string pathToArchive, ArchivedFilePath obj)
+        {
+            Id = id;
+            PathToArchive = pathToArchive;
+            Objects = new List<ArchivedFilePath> { obj };
+        }
+
         public Guid Id { get; }
         public string PathToArchive { get; }
         public List<ArchivedFilePath> Objects { get; }
