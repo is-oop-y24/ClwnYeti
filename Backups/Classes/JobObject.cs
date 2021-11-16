@@ -2,11 +2,11 @@ namespace Backups.Classes
 {
     public class JobObject
     {
-        public JobObject(string name)
+        public JobObject(string pathToFile)
         {
-            Name = name;
+            Path = pathToFile;
         }
 
-        public string Name { get; }
+        public string Path { get; }
     }
 }
