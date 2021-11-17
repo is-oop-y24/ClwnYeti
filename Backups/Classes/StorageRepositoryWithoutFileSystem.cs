@@ -13,17 +13,17 @@ namespace Backups.Classes
             _storages = new List<Storage>();
         }
 
-        public Storage Add(List<JobObject> jobObjects, string directory)
+        public Storage Add(List<JobObject> jobObjects, string backupDirectory, int restorePointNumber)
         {
             var id = Guid.NewGuid();
-            _storages.Add(new Storage(id, directory + "/" + id, jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList()));
+            _storages.Add(new Storage(id, backupDirectory + "/" + restorePointNumber + "/" + id + ".zip", jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList()));
             return _storages[^1];
         }
 
-        public Storage Add(JobObject jobObject, string directory)
+        public Storage Add(JobObject jobObject, string backupDirectory, int restorePointNumber)
         {
             var id = Guid.NewGuid();
-            _storages.Add(new Storage(id, directory + "/" + id,  new ArchivedFilePath(jobObject.Path)));
+            _storages.Add(new Storage(id, backupDirectory + "/" + restorePointNumber + "/" + id + ".zip",  new ArchivedFilePath(jobObject.Path)));
             return _storages[^1];
         }
 

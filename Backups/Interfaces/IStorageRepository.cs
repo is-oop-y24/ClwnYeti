@@ -5,8 +5,8 @@ namespace Backups.Interfaces
 {
     public interface IStorageRepository
     {
-        public Storage Add(List<JobObject> jobObjects, string directory);
-        public Storage Add(JobObject jobObject, string directory);
+        public Storage Add(List<JobObject> jobObjects, string restorePointDirectory, int restorePointNumber);
+        public Storage Add(JobObject jobObject, string backupDirectory, int restorePointNumber);
         public abstract IStorageRepository Empty();
     }
 }

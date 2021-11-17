@@ -6,9 +6,9 @@ namespace Backups.Services
 {
     public class SingleStorageArchiver : IArchiver
     {
-        public IStorageRepository Store(IStorageRepository repository, string directory, List<JobObject> jobObjects)
+        public IStorageRepository Store(IStorageRepository repository, string backupDirectory, int restorePointNumber, List<JobObject> jobObjects)
         {
-            repository.Add(jobObjects, directory);
+            repository.Add(jobObjects, backupDirectory, restorePointNumber);
             return repository;
         }
     }
