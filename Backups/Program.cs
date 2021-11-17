@@ -17,8 +17,13 @@ namespace Backups
             thirdFile.Close();
             FileStream fourthFile = File.Create("C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\4.txt");
             fourthFile.Close();
-            var firstTest = new BackupJob(new SplitStoragesArchiver(), new StorageRepositoryWithFileSystem(), "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\Backups");
-            var secondTest = new BackupJob(new SingleStorageArchiver(), new StorageRepositoryWithFileSystem(), "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\Backups");
+            var backupJobBuilder = new BackupJobBuilder();
+            backupJobBuilder.WithStorageRepository(new StorageRepositoryWithFileSystem());
+            backupJobBuilder.WithDirectory("C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\Backup");
+            backupJobBuilder.WithArchiver(new SplitStoragesArchiver());
+            BackupJob firstTest = backupJobBuilder.Create();
+            backupJobBuilder.WithArchiver(new SingleStorageArchiver());
+            BackupJob secondTest = backupJobBuilder.Create();
             firstTest.Add(firstFile.Name);
             firstTest.Add(secondFile.Name);
             firstTest.MakeRestorePoint();
