@@ -11,9 +11,9 @@ namespace Backups.Services
     {
         private readonly List<JobObject> _currentJobObjects;
         private readonly List<RestorePoint> _restorePoints;
-        private IArchiver _archiver;
-        private IStorageRepository _repository;
-        private string _directoryForSave;
+        private readonly IArchiver _archiver;
+        private readonly IStorageRepository _repository;
+        private readonly string _directoryForSave;
 
         public BackupJob(IArchiver algorithmOfStorage, IStorageRepository repository, string directory)
         {
