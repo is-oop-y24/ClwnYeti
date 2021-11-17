@@ -24,8 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="JobObjects" />
-    <Folder Include="Storages" />
   </ItemGroup>
 
 </Project>
