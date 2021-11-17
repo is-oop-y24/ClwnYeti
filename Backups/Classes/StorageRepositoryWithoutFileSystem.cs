@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Backups.Interfaces;
+using Backups.Tools;
 
 namespace Backups.Classes
 {
@@ -30,6 +32,21 @@ namespace Backups.Classes
         IStorageRepository IStorageRepository.Empty()
         {
             return new StorageRepositoryWithoutFileSystem();
+        }
+
+        public Storage GetById(Guid id)
+        {
+            foreach (Storage s in _storages.Where(s => s.Id == id))
+            {
+                return s;
+            }
+
+            throw new BackupsException("There is no storages with this id");
+        }
+
+        public IEnumerable<Storage> GetAllStorages()
+        {
+            return _storages;
         }
     }
 }

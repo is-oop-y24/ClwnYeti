@@ -1,26 +1,33 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
 
 namespace Backups.Classes
 {
     public class Storage
     {
-        public Storage(Guid id, string pathToArchive, List<ArchivedFilePath> objects)
+        private readonly IEnumerable<ArchivedFilePath> _objects;
+        public Storage(Guid id, string pathToArchive, IEnumerable<ArchivedFilePath> objects)
         {
             Id = id;
             PathToArchive = pathToArchive;
-            Objects = objects;
+            _objects = objects;
         }
 
         public Storage(Guid id, string pathToArchive, ArchivedFilePath obj)
         {
             Id = id;
             PathToArchive = pathToArchive;
-            Objects = new List<ArchivedFilePath> { obj };
+            _objects = new List<ArchivedFilePath> { obj };
         }
 
         public Guid Id { get; }
         public string PathToArchive { get; }
-        public List<ArchivedFilePath> Objects { get; }
+
+        public IEnumerable<ArchivedFilePath> GetPathsOfFilesAndTheirNewNames()
+        {
+            return _objects;
+        }
     }
 }

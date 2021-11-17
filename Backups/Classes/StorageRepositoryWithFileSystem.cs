@@ -77,5 +77,20 @@ namespace Backups.Classes
         {
             return new StorageRepositoryWithFileSystem();
         }
+
+        public Storage GetById(Guid id)
+        {
+            foreach (Storage s in _storages.Where(s => s.Id == id))
+            {
+                return s;
+            }
+
+            throw new BackupsException("There is no storages with this id");
+        }
+
+        public IEnumerable<Storage> GetAllStorages()
+        {
+            return _storages;
+        }
     }
 }
