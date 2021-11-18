@@ -1,9 +1,11 @@
+using System;
+
 #nullable enable
 namespace Shops.Classes
 {
     public class Product
     {
-        private int _shopId;
+        private readonly int _shopId;
         public Product(string name, uint price, int shopId, uint count)
         {
             Name = name;

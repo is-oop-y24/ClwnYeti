@@ -1,5 +1,3 @@
-using System;
-
 namespace Shops.Classes
 {
     public class Customer

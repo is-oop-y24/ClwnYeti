@@ -20,21 +20,23 @@ namespace Shops.Tests
         {
             Customer customer = _shopsService.AddCustomer("Миксаил Кузутов", 5000);
             Assert.IsNotNull(customer);
-            Assert.AreEquals("Миксаил Кузутов", customer.Name)
+            Assert.AreEqual("Миксаил Кузутов", customer.Name);
         }
 
         [Test]
         public void AddShop()
         {
             Shop shop = _shopsService.AddShop("Пятёрочка", "Пушкинская, 15");
-            Assert.True(shop != null && shop.Name == "Пятёрочка" && shop.Address == "Пушкинская, 15");
+            Assert.IsNotNull(shop);
+            Assert.AreEqual(shop.Name, "Пятёрочка");  
+            Assert.AreEqual(shop.Address, "Пушкинская, 15");
         }
 
         [Test]
         public void RegisterProduct()
         {
             string nameOfProduct = _shopsService.RegisterProduct("Кукуруза");
-            Assert.True(nameOfProduct == "Кукуруза");
+            Assert.AreEqual(nameOfProduct, "Кукуруза");
         }
 
         [Test]
