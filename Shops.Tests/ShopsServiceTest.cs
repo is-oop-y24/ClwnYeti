@@ -19,7 +19,8 @@ namespace Shops.Tests
         public void AddCustomer()
         {
             Customer customer = _shopsService.AddCustomer("Миксаил Кузутов", 5000);
-            Assert.True(customer != null && customer.Name == "Миксаил Кузутов");
+            Assert.IsNotNull(customer);
+            Assert.AreEquals("Миксаил Кузутов", customer.Name)
         }
 
         [Test]
