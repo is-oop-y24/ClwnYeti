@@ -25,9 +25,9 @@ namespace Backups.Classes
         public Guid Id { get; }
         public string PathToArchive { get; }
 
-        public IEnumerable<ArchivedFilePath> GetPathsOfFilesAndTheirNewNames()
+        public IEnumerable<JobObject> GetJobObjects()
         {
-            return _objects;
+            return _objects.Select(afp => new JobObject(afp.OldFilePath)).ToList();
         }
     }
 }

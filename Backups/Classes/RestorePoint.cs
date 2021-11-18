@@ -31,9 +31,9 @@ namespace Backups.Classes
             return _storages.GetAllStorages();
         }
 
-        public IEnumerable<ArchivedFilePath> GetFilePathsAndTheirNewNames()
+        public IEnumerable<JobObject> GetJobObjects()
         {
-            return GetStorages().SelectMany(s => s.GetPathsOfFilesAndTheirNewNames()).ToList();
+            return GetStorages().SelectMany(s => s.GetJobObjects()).ToList();
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Backups.Classes;
 using Backups.Interfaces;
 using Backups.Services;
@@ -30,13 +29,17 @@ namespace Backups.Tests
             string firstFileName = "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\1.txt";
             string secondFileName = "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\2.txt";
             string thirdFileName = "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\3.txt";
-            _firstBackupJob.Add(firstFileName);
-            _firstBackupJob.Add(secondFileName);
-            _firstBackupJob.MakeRestorePoint();
+            JobObject firstJobObject = _firstBackupJob.Add(firstFileName);
+            JobObject secondJobObject = _firstBackupJob.Add(secondFileName);
+            RestorePoint firstPoint = _firstBackupJob.MakeRestorePoint();
             _firstBackupJob.Delete(firstFileName);
-            _firstBackupJob.Add(thirdFileName);
-            _firstBackupJob.MakeRestorePoint();
-            Assert.True(true);
+            JobObject thirdJobObject = _firstBackupJob.Add(thirdFileName);
+            RestorePoint secondPoint = _firstBackupJob.MakeRestorePoint();
+            CollectionAssert.Contains(firstPoint.GetJobObjects(), firstJobObject);
+            CollectionAssert.Contains(firstPoint.GetJobObjects(), secondJobObject);
+            CollectionAssert.Contains(secondPoint.GetJobObjects(), secondJobObject);
+            CollectionAssert.Contains(secondPoint.GetJobObjects(), thirdJobObject);
+            CollectionAssert.DoesNotContain(secondPoint.GetJobObjects(), firstJobObject);
         }
 
         [Test]
@@ -66,13 +69,17 @@ namespace Backups.Tests
             string firstFileName = "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\1.txt";
             string secondFileName = "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\2.txt";
             string thirdFileName = "C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\3.txt";
-            _secondBackupJob.Add(firstFileName);
-            _secondBackupJob.Add(secondFileName);
-            _secondBackupJob.MakeRestorePoint();
+            JobObject firstJobObject = _secondBackupJob.Add(firstFileName);
+            JobObject secondJobObject = _secondBackupJob.Add(secondFileName);
+            RestorePoint firstPoint = _secondBackupJob.MakeRestorePoint();
             _secondBackupJob.Delete(firstFileName);
-            _secondBackupJob.Add(thirdFileName);
-            _secondBackupJob.MakeRestorePoint();
-            Assert.True(true);
+            JobObject thirdJobObject = _secondBackupJob.Add(thirdFileName);
+            RestorePoint secondPoint = _secondBackupJob.MakeRestorePoint();
+            CollectionAssert.Contains(firstPoint.GetJobObjects(), firstJobObject);
+            CollectionAssert.Contains(firstPoint.GetJobObjects(), secondJobObject);
+            CollectionAssert.Contains(secondPoint.GetJobObjects(), secondJobObject);
+            CollectionAssert.Contains(secondPoint.GetJobObjects(), thirdJobObject);
+            CollectionAssert.DoesNotContain(secondPoint.GetJobObjects(), firstJobObject);
         }
     }
 }
