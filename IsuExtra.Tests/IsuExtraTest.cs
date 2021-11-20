@@ -21,7 +21,7 @@ namespace IsuExtra.Tests
         {
             Assert.Catch<IsuExtraException>(() =>
             {            
-                    _isuExtraService.AddGsaGroup("M3302");
+                _isuExtraService.AddGsaGroup("M3302");
             });
         }
         
@@ -43,7 +43,7 @@ namespace IsuExtra.Tests
         {
             Assert.Catch<IsuExtraException>(() =>
             {  
-                    Group isuGroup = _isuExtraService.AddIsuGroup("M3202");
+                Group isuGroup = _isuExtraService.AddIsuGroup("M3202");
                 Student student = _isuExtraService.AddStudent(isuGroup, "Миксаил Кузутов");
                 _isuExtraService.AddGsaGroupForStudent(student, isuGroup);
             });
