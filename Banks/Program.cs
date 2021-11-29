@@ -1,4 +1,6 @@
-﻿namespace Banks
+﻿using System;
+
+namespace Banks
 {
     internal static class Program
     {
