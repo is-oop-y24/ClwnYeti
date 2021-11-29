@@ -1,5 +1,4 @@
 using System;
-using System.Security.Claims;
 using Banks.Classes;
 using Banks.Tools;
 
@@ -72,6 +71,18 @@ namespace Banks.Services
             if (passportId != string.Empty)
             {
                 _passportId = passportId;
+            }
+            else
+            {
+                throw new BankException("The surname is empty");
+            }
+        }
+
+        public void WithId(Guid id)
+        {
+            if (id != Guid.Empty)
+            {
+                _id = id;
             }
             else
             {
