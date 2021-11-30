@@ -10,9 +10,11 @@ namespace Banks.Services
         private decimal _defaultInterestForDepositAccount;
         private decimal _creditLimitForCreditAccount;
         private decimal _commissionForCreditAccount;
+        private decimal _criticalAmountOfMoney;
 
         public BankConfigurationBuilder()
         {
+            _criticalAmountOfMoney = 1000;
             _interestForDebitAccount = 1;
             _interestsForDepositAccount = new DepositAccountConfiguration();
             _defaultInterestForDepositAccount = 2;
@@ -20,8 +22,9 @@ namespace Banks.Services
             _creditLimitForCreditAccount = 100000;
         }
 
-        public BankConfigurationBuilder(BankConfiguration bankConfiguration)
+        public BankConfigurationBuilder(BankConfiguration bankConfiguration, decimal criticalAmountOfMoney)
         {
+            _criticalAmountOfMoney = criticalAmountOfMoney;
             _interestForDebitAccount = bankConfiguration.InterestForDebitAccount;
             _interestsForDepositAccount = bankConfiguration.InterestsForDepositAccount;
             _defaultInterestForDepositAccount = bankConfiguration.DefaultInterestForDepositAccount;
@@ -64,6 +67,16 @@ namespace Banks.Services
             _creditLimitForCreditAccount = creditLimitForCreditAccount;
         }
 
+        public void WithCriticalAmountOfMoney(decimal criticalAmountOfMoney)
+        {
+            if (criticalAmountOfMoney < 0)
+            {
+                throw new BankException("Critical amount of money can't be negative");
+            }
+
+            _criticalAmountOfMoney = criticalAmountOfMoney;
+        }
+
         public void WithCommissionForCreditAccount(decimal commissionForCreditAccount)
         {
             if (commissionForCreditAccount < 0)
@@ -76,7 +89,7 @@ namespace Banks.Services
 
         public BankConfiguration BuiltBankConfiguration()
         {
-            return new BankConfiguration(_interestForDebitAccount, _interestsForDepositAccount, _defaultInterestForDepositAccount,  _creditLimitForCreditAccount, _commissionForCreditAccount);
+            return new BankConfiguration(_interestForDebitAccount, _interestsForDepositAccount, _defaultInterestForDepositAccount,  _creditLimitForCreditAccount, _commissionForCreditAccount, _criticalAmountOfMoney);
         }
     }
 }

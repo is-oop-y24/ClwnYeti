@@ -7,42 +7,25 @@ namespace Banks.Classes
 {
     public class DepositAccount : IAccount
     {
-        private readonly decimal _balance;
-        private DepositAccountConfiguration _configuration;
-        private decimal _defaultInterest;
-        public DepositAccount(DepositAccountConfiguration configuration, decimal defaultInterest, Guid idOfOwner)
+        private readonly Guid _id;
+        private readonly Guid _idOfOwner;
+        public DepositAccount(Guid idOfOwner)
         {
-            _configuration = configuration;
-            _defaultInterest = defaultInterest;
-            IdOfOwner = idOfOwner;
-            _balance = 0;
+            _idOfOwner = idOfOwner;
+            Balance = 0;
+            _id = Guid.NewGuid();
         }
 
-        public Guid IdOfOwner { get; }
-        public decimal Balance
-        {
-            get => _balance;
-            private set
-            {
-                if (IsUnderLimit(value))
-                {
-                    Balance = value;
-                }
-                else
-                {
-                    throw new BankException("Balance on deposit card can't be negative");
-                }
-            }
-        }
+        public decimal Balance { get; private set; }
 
-        public void ChargeInterests(int days)
+        public void ChargeInterests(int days, BankConfiguration bankConfiguration)
         {
             for (int i = 0; i < days; i++)
             {
-                InterestRange ir = _configuration.GetADepositConfiguration().FirstOrDefault(j => j.InRange(Balance));
+                InterestRange ir = bankConfiguration.InterestsForDepositAccount.GetADepositConfiguration().FirstOrDefault(j => j.InRange(Balance));
                 if (ir == null)
                 {
-                    Balance *= 1 + (_defaultInterest / 100);
+                    Balance *= 1 + (bankConfiguration.DefaultInterestForDepositAccount / 100);
                 }
                 else
                 {
@@ -51,23 +34,28 @@ namespace Banks.Classes
             }
         }
 
-        public void CheckCommission(int days)
+        public void CheckCommission(int days, BankConfiguration bankConfiguration)
         {
         }
 
-        public void Replenish(decimal money)
+        public void Replenish(decimal money, BankConfiguration bankConfiguration)
         {
             Balance += money;
         }
 
-        public void Withdraw(decimal money)
+        public void Withdraw(decimal money, BankConfiguration bankConfiguration)
         {
             throw new BankException("Can't withdraw money from deposit card");
         }
 
-        private static bool IsUnderLimit(decimal money)
+        public Guid GetId()
         {
-            return money >= 0;
+            return _id;
+        }
+
+        public Guid GetOwnerId()
+        {
+            return _idOfOwner;
         }
     }
 }

@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Banks.Classes;
 using Banks.Interfaces;
+using Banks.Tools;
 
 namespace Banks.Services
 {
     public class CentralBank : ICentralBank
     {
-        private List<Bank> _banks;
-        private TimeMachine _timeMachine;
+        private readonly List<Bank> _banks;
+        private readonly TimeMachine _timeMachine;
 
         public CentralBank()
         {
@@ -37,15 +39,49 @@ namespace Banks.Services
             return _banks[^1];
         }
 
-        public Client AddClientForBank(Client client, Bank bank)
+        public Client AddClientForBank(Client client, Guid bankId)
         {
-            return bank.AddClient(client);
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                return b.AddClient(client);
+            }
+
+            throw new BankException("There is no such bank in this system");
         }
 
-        public BankConfiguration SetAConfigurationForBank(BankConfiguration configuration, Bank bank)
+        public BankConfiguration SetAConfigurationForBank(BankConfiguration configuration, Guid bankId)
         {
-            bank.Configuration = configuration;
-            return configuration;
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                b.Configuration = configuration;
+                return configuration;
+            }
+
+            throw new BankException("There is no such bank in this system");
+        }
+
+        public void MakeATransferBetweenAccountsInBank(Guid bankId, Guid accountFromId, decimal money, Guid accountToId)
+        {
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                b.MakeTransferBetweenAccounts(accountFromId, money, accountToId);
+            }
+        }
+
+        public void ReplenishAccountInBank(Guid bankId, decimal money, Guid accountToId)
+        {
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                b.ReplenishAccount(money, accountToId);
+            }
+        }
+
+        public void WithdrawFromAccountInBank(Guid bankId, Guid accountFromId, decimal money)
+        {
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                b.WithdrawFromAccount(accountFromId, money);
+            }
         }
     }
 }

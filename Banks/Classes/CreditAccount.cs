@@ -1,71 +1,60 @@
 using System;
 using Banks.Interfaces;
+using Banks.Tools;
 
 namespace Banks.Classes
 {
     public class CreditAccount : IAccount
     {
-        private readonly decimal _creditLimit;
-        private readonly decimal _commission;
-        private readonly decimal _balance;
+        private readonly Guid _id;
+        private readonly Guid _idOfOwner;
 
-        public CreditAccount(decimal creditLimit, decimal commission, Guid idOfOwner)
+        public CreditAccount(Guid idOfOwner)
         {
-            _balance = 0;
-            _creditLimit = creditLimit;
-            _commission = commission;
-            IdOfOwner = idOfOwner;
+            Balance = 0;
+            _idOfOwner = idOfOwner;
+            _id = Guid.NewGuid();
         }
 
-        public Guid IdOfOwner { get; }
-        public decimal Balance
-        {
-            get => _balance;
-            private set
-            {
-                if (IsUnderLimit(value))
-                {
-                    Balance = value;
-                }
-                else
-                {
-                    if (value > 0)
-                    {
-                        Balance = _creditLimit;
-                    }
-                    else
-                    {
-                        Balance = -_creditLimit;
-                    }
-                }
-            }
-        }
+        public decimal Balance { get; private set; }
 
-        public void ChargeInterests(int days)
+        public void ChargeInterests(int days, BankConfiguration bankConfiguration)
         {
         }
 
-        public void CheckCommission(int days)
+        public void CheckCommission(int days, BankConfiguration bankConfiguration)
         {
             if (Balance < 0)
             {
-                Balance -= days * _commission;
+                Balance -= days * bankConfiguration.CommissionForCreditAccount;
             }
         }
 
-        public void Replenish(decimal money)
+        public void Replenish(decimal money, BankConfiguration bankConfiguration)
         {
             Balance += money;
         }
 
-        public void Withdraw(decimal money)
+        public void Withdraw(decimal money, BankConfiguration bankConfiguration)
         {
-            Balance -= money;
+            if (Balance - money < -bankConfiguration.CreditLimitForCreditAccount)
+            {
+                throw new BankException("Not enough money on account");
+            }
+            else
+            {
+                Balance -= money;
+            }
         }
 
-        private bool IsUnderLimit(decimal money)
+        public Guid GetId()
         {
-            return money >= -_creditLimit && money <= _creditLimit;
+            return _id;
+        }
+
+        public Guid GetOwnerId()
+        {
+            return _idOfOwner;
         }
     }
 }
