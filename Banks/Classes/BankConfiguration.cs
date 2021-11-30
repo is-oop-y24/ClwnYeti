@@ -2,22 +2,24 @@ namespace Banks.Classes
 {
     public class BankConfiguration
     {
-        public BankConfiguration(int interestsForDebitAccount, DepositAccountConfiguration interestsForDepositAccount, int creditLimitForCreditAccount, int commissionForCreditAccount)
+        public BankConfiguration(decimal interestsForDebitAccount, DepositAccountConfiguration interestsForDepositAccount, decimal defaultInterestForDepositAccount, decimal creditLimitForCreditAccount, decimal commissionForCreditAccount)
         {
             InterestsForDebitAccount = interestsForDebitAccount;
             InterestsForDepositAccount = interestsForDepositAccount;
             CreditLimitForCreditAccount = creditLimitForCreditAccount;
             CommissionForCreditAccount = commissionForCreditAccount;
+            DefaultInterestForDepositAccount = defaultInterestForDepositAccount;
         }
 
-        public int InterestsForDebitAccount { get; }
+        public decimal InterestsForDebitAccount { get; }
         public DepositAccountConfiguration InterestsForDepositAccount { get; }
-        public int CreditLimitForCreditAccount { get; }
-        public int CommissionForCreditAccount { get; }
+        public decimal DefaultInterestForDepositAccount { get; }
+        public decimal CreditLimitForCreditAccount { get; }
+        public decimal CommissionForCreditAccount { get; }
 
         public static BankConfiguration Default()
         {
-            return new BankConfiguration(1, DepositAccountConfiguration.Default(), 10000, 500);
+            return new BankConfiguration(1, DepositAccountConfiguration.Default(), 2, 10000, 500);
         }
     }
 }

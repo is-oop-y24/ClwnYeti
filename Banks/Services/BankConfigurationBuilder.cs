@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Banks.Classes;
 using Banks.Tools;
 
@@ -7,49 +5,56 @@ namespace Banks.Services
 {
     public class BankConfigurationBuilder
     {
-        private int _interestsForDebitAccount;
+        private decimal _interestForDebitAccount;
         private DepositAccountConfiguration _interestsForDepositAccount;
-        private int _creditLimitForCreditAccount;
-        private int _commissionForCreditAccount;
+        private decimal _defaultInterestForDepositAccount;
+        private decimal _creditLimitForCreditAccount;
+        private decimal _commissionForCreditAccount;
 
         public BankConfigurationBuilder()
         {
-            _interestsForDebitAccount = 1;
+            _interestForDebitAccount = 1;
             _interestsForDepositAccount = new DepositAccountConfiguration();
+            _defaultInterestForDepositAccount = 2;
             _commissionForCreditAccount = 500;
             _creditLimitForCreditAccount = 100000;
         }
 
         public BankConfigurationBuilder(BankConfiguration bankConfiguration)
         {
-            _interestsForDebitAccount = bankConfiguration.InterestsForDebitAccount;
+            _interestForDebitAccount = bankConfiguration.InterestsForDebitAccount;
             _interestsForDepositAccount = bankConfiguration.InterestsForDepositAccount;
+            _defaultInterestForDepositAccount = bankConfiguration.DefaultInterestForDepositAccount;
             _commissionForCreditAccount = bankConfiguration.CommissionForCreditAccount;
             _creditLimitForCreditAccount = bankConfiguration.CreditLimitForCreditAccount;
         }
 
-        public void WithInterestsForDebitAccount(int interestsForDebitAccount)
+        public void WithInterestsForDebitAccount(int interestForDebitAccount)
         {
-            if (interestsForDebitAccount < 0)
+            if (interestForDebitAccount < 0)
             {
                 throw new BankException("Interests can't be negative");
             }
 
-            _interestsForDebitAccount = interestsForDebitAccount;
+            _interestForDebitAccount = interestForDebitAccount;
         }
 
         public void WithInterestsForDepositAccount(DepositAccountConfiguration interestsForDepositAccount)
         {
-            Dictionary<int, int> configuration = interestsForDepositAccount.GetADepositConfiguration();
-            if (configuration.Keys.Any(bottomLine => bottomLine >= 0 && configuration[bottomLine] >= 0))
-            {
-                throw new BankException("Interest and bottom value can't be negative");
-            }
-
             _interestsForDepositAccount = interestsForDepositAccount;
         }
 
-        public void WithCreditLimitForCreditAccount(int creditLimitForCreditAccount)
+        public void WithDefaultInterestForDepositAccount(decimal defaultInterestForDepositAccount)
+        {
+            if (defaultInterestForDepositAccount < 0)
+            {
+                throw new BankException("Interests can't be negative");
+            }
+
+            _defaultInterestForDepositAccount = defaultInterestForDepositAccount;
+        }
+
+        public void WithCreditLimitForCreditAccount(decimal creditLimitForCreditAccount)
         {
             if (creditLimitForCreditAccount < 0)
             {
@@ -59,7 +64,7 @@ namespace Banks.Services
             _creditLimitForCreditAccount = creditLimitForCreditAccount;
         }
 
-        public void WithCommissionForCreditAccount(int commissionForCreditAccount)
+        public void WithCommissionForCreditAccount(decimal commissionForCreditAccount)
         {
             if (commissionForCreditAccount < 0)
             {
@@ -71,7 +76,7 @@ namespace Banks.Services
 
         public BankConfiguration BuiltBankConfiguration()
         {
-            return new BankConfiguration(_interestsForDebitAccount, _interestsForDepositAccount, _creditLimitForCreditAccount, _commissionForCreditAccount);
+            return new BankConfiguration(_interestForDebitAccount, _interestsForDepositAccount, _defaultInterestForDepositAccount,  _creditLimitForCreditAccount, _commissionForCreditAccount);
         }
     }
 }
