@@ -1,3 +1,4 @@
+using System;
 using Banks.Interfaces;
 
 namespace Banks.Classes
@@ -8,18 +9,15 @@ namespace Banks.Classes
         private readonly decimal _commission;
         private readonly decimal _balance;
 
-        public CreditAccount(decimal creditLimit, decimal commission)
+        public CreditAccount(decimal creditLimit, decimal commission, Guid idOfOwner)
         {
             _balance = 0;
             _creditLimit = creditLimit;
             _commission = commission;
+            IdOfOwner = idOfOwner;
         }
 
-        public CreditAccount(decimal balance)
-        {
-            Balance = balance;
-        }
-
+        public Guid IdOfOwner { get; }
         public decimal Balance
         {
             get => _balance;

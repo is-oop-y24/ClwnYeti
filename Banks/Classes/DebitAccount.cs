@@ -1,3 +1,4 @@
+using System;
 using Banks.Interfaces;
 using Banks.Tools;
 
@@ -7,12 +8,14 @@ namespace Banks.Classes
     {
         private readonly decimal _interest;
         private readonly decimal _balance;
-        public DebitAccount(decimal interest)
+        public DebitAccount(decimal interest, Guid idOfOwner)
         {
             _balance = 0;
             _interest = interest;
+            IdOfOwner = idOfOwner;
         }
 
+        public Guid IdOfOwner { get; }
         public decimal Balance
         {
             get => _balance;

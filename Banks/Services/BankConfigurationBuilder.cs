@@ -22,7 +22,7 @@ namespace Banks.Services
 
         public BankConfigurationBuilder(BankConfiguration bankConfiguration)
         {
-            _interestForDebitAccount = bankConfiguration.InterestsForDebitAccount;
+            _interestForDebitAccount = bankConfiguration.InterestForDebitAccount;
             _interestsForDepositAccount = bankConfiguration.InterestsForDepositAccount;
             _defaultInterestForDepositAccount = bankConfiguration.DefaultInterestForDepositAccount;
             _commissionForCreditAccount = bankConfiguration.CommissionForCreditAccount;

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Banks.Interfaces;
 using Banks.Tools;
@@ -9,13 +10,15 @@ namespace Banks.Classes
         private readonly decimal _balance;
         private DepositAccountConfiguration _configuration;
         private decimal _defaultInterest;
-        public DepositAccount(DepositAccountConfiguration configuration, decimal defaultInterest)
+        public DepositAccount(DepositAccountConfiguration configuration, decimal defaultInterest, Guid idOfOwner)
         {
             _configuration = configuration;
             _defaultInterest = defaultInterest;
+            IdOfOwner = idOfOwner;
             _balance = 0;
         }
 
+        public Guid IdOfOwner { get; }
         public decimal Balance
         {
             get => _balance;
