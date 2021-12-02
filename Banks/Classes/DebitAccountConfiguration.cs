@@ -11,10 +11,7 @@ namespace Banks.Classes
 
         public DebitAccountConfiguration(decimal interestForDebitAccount)
         {
-            if (interestForDebitAccount < 0)
-            {
-                throw new BankException("Interest can't be negative");
-            }
+            Interest = interestForDebitAccount;
         }
 
         public decimal Interest { get; }

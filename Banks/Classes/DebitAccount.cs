@@ -57,6 +57,11 @@ namespace Banks.Classes
             return _idOfOwner;
         }
 
+        public string GetInfo()
+        {
+            return $"Debit Account with id {_id}: Owner Id - {_idOfOwner}, Balance - {Balance}";
+        }
+
         public bool EqualsWith(IAccount account)
         {
             return GetType() == account.GetType() && _id == account.GetId() && _idOfOwner == GetOwnerId();

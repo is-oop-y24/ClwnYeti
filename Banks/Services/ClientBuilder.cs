@@ -21,13 +21,22 @@ namespace Banks.Services
             _passportId = string.Empty;
         }
 
-        public ClientBuilder(Client client)
+        public void SetToClientInvariant(Client client)
         {
             _id = client.Id;
             _name = client.Name;
             _surname = client.Surname;
             _address = client.Address;
             _passportId = client.PassportId;
+        }
+
+        public void SetToDefault()
+        {
+            _id = Guid.Empty;
+            _name = string.Empty;
+            _surname = string.Empty;
+            _address = string.Empty;
+            _passportId = string.Empty;
         }
 
         public void WithName(string name)

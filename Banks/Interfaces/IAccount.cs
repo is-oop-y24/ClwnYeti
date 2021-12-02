@@ -5,15 +5,16 @@ namespace Banks.Interfaces
 {
     public interface IAccount
     {
-        void ChargeInterests(int days, BankConfiguration bankConfiguration);
-        void CheckCommission(int days, BankConfiguration bankConfiguration);
+        public void ChargeInterests(int days, BankConfiguration bankConfiguration);
+        public void CheckCommission(int days, BankConfiguration bankConfiguration);
 
-        void Replenish(decimal money, BankConfiguration bankConfiguration);
+        public void Replenish(decimal money, BankConfiguration bankConfiguration);
 
-        void Withdraw(decimal money, BankConfiguration bankConfiguration);
+        public void Withdraw(decimal money, BankConfiguration bankConfiguration);
 
-        Guid GetId();
-        Guid GetOwnerId();
-        bool EqualsWith(IAccount account);
+        public Guid GetId();
+        public Guid GetOwnerId();
+        public string GetInfo();
+        public bool EqualsWith(IAccount account);
     }
 }

@@ -23,7 +23,7 @@ namespace Banks.Classes
             _id = Guid.Empty;
         }
 
-        public decimal Balance { get; private set; }
+        public decimal Balance { get; set; }
 
         public void ChargeInterests(int days, BankConfiguration bankConfiguration)
         {
@@ -63,6 +63,11 @@ namespace Banks.Classes
         public Guid GetOwnerId()
         {
             return _idOfOwner;
+        }
+
+        public string GetInfo()
+        {
+            return $"Deposit Account with id {_id}: Owner Id - {_idOfOwner}, Balance - {Balance}";
         }
 
         public bool EqualsWith(IAccount account)

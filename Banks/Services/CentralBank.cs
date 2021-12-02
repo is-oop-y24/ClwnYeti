@@ -39,84 +39,14 @@ namespace Banks.Services
             return _banks[^1];
         }
 
-        public Client AddClientForBank(Client client, Guid bankId)
+        public Bank GetBank(Guid bankId)
         {
             foreach (Bank b in _banks.Where(b => b.Id == bankId))
             {
-                return b.AddClient(client);
+                return b;
             }
 
-            throw new BankException("There is no such bank in this system");
-        }
-
-        public void SetACreditAccountConfigurationForBank(CreditAccountConfiguration configuration, Guid bankId)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                b.Configuration.CreditAccountConfiguration = configuration;
-                b.Notify(new CreditAccount());
-                return;
-            }
-
-            throw new BankException("There is no such bank");
-        }
-
-        public void SetADepositAccountConfigurationForBank(DepositAccountConfiguration configuration, Guid bankId)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                b.Configuration.DepositAccountConfiguration = configuration;
-                b.Notify(new DepositAccount());
-                return;
-            }
-
-            throw new BankException("There is no such bank");
-        }
-
-        public void SetADebitAccountConfigurationForBank(DebitAccountConfiguration configuration, Guid bankId)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                b.Configuration.DebitAccountConfiguration = configuration;
-                b.Notify(new DebitAccount());
-                return;
-            }
-
-            throw new BankException("There is no such bank");
-        }
-
-        public IEnumerable<string> Notify(Guid bankId, IAccount account)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                return b.Notify(account);
-            }
-
-            throw new BankException("There is no such bank");
-        }
-
-        public void MakeATransferBetweenAccountsInBank(Guid bankId, Guid accountFromId, decimal money, Guid accountToId)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                b.MakeTransferBetweenAccounts(accountFromId, money, accountToId);
-            }
-        }
-
-        public void ReplenishAccountInBank(Guid bankId, decimal money, Guid accountToId)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                b.ReplenishAccount(money, accountToId);
-            }
-        }
-
-        public void WithdrawFromAccountInBank(Guid bankId, Guid accountFromId, decimal money)
-        {
-            foreach (Bank b in _banks.Where(b => b.Id == bankId))
-            {
-                b.WithdrawFromAccount(accountFromId, money);
-            }
+            throw new BankException("There is no bank with this id");
         }
     }
 }
