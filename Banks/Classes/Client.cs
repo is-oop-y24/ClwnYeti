@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Banks.Interfaces;
 
 namespace Banks.Classes
 {
@@ -27,6 +29,12 @@ namespace Banks.Classes
         public string Surname { get; }
         public string Address { get; }
         public string PassportId { get; }
+        public List<IAccount> TypesOfAccounts { get; }
+
+        public string Notify()
+        {
+            return $"Client {Name} {Surname} with id {Id} was notified";
+        }
 
         public bool IsVerified()
         {

@@ -85,6 +85,16 @@ namespace Banks.Services
             throw new BankException("There is no such bank");
         }
 
+        public IEnumerable<string> Notify(Guid bankId, IAccount account)
+        {
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                return b.Notify(account);
+            }
+
+            throw new BankException("There is no such bank");
+        }
+
         public void MakeATransferBetweenAccountsInBank(Guid bankId, Guid accountFromId, decimal money, Guid accountToId)
         {
             foreach (Bank b in _banks.Where(b => b.Id == bankId))

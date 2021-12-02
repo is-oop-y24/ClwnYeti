@@ -9,7 +9,7 @@ namespace Banks.Classes
     public class Bank
     {
         private readonly List<IAccount> _accounts;
-        private readonly List<Client> _clients;
+        private readonly Dictionary<Guid, ClientInfo> _clientsInfo;
         private readonly Dictionary<Guid, List<Transaction>> _transactions;
 
         public Bank(string name, BankConfiguration bankConfiguration)
@@ -18,11 +18,11 @@ namespace Banks.Classes
             Configuration = bankConfiguration;
             _transactions = new Dictionary<Guid, List<Transaction>>();
             _accounts = new List<IAccount>();
-            _clients = new List<Client>();
+            _clientsInfo = new Dictionary<Guid, ClientInfo>();
             Id = Guid.NewGuid();
         }
 
-        public BankConfiguration Configuration { get; set; }
+        public BankConfiguration Configuration { get; }
         public string Name { get; }
         public Guid Id { get; }
 
@@ -37,12 +37,14 @@ namespace Banks.Classes
 
         public Client AddClient(Client client)
         {
-            _clients.Add(client);
-            return _clients[^1];
+            _clientsInfo[client.Id] = new ClientInfo(client);
+            return client;
         }
 
         public IAccount AddDebitAccountForClient(Guid clientId)
         {
+            if (!_clientsInfo.ContainsKey(clientId)) throw new BankException("No such client in this bank");
+            if (!_clientsInfo[clientId].TypesOfAccounts.Any(a => a.EqualsWith(new DebitAccount()))) _clientsInfo[clientId].TypesOfAccounts.Add(new DebitAccount());
             _accounts.Add(new DebitAccount(clientId));
             _transactions[_accounts[^1].GetId()] = new List<Transaction>();
             return _accounts[^1];
@@ -50,7 +52,8 @@ namespace Banks.Classes
 
         public IAccount AddDepositAccountForClient(Guid clientId)
         {
-            if (_clients.All(c => c.Id != clientId)) throw new BankException("No such client in this bank");
+            if (!_clientsInfo.ContainsKey(clientId)) throw new BankException("No such client in this bank");
+            if (!_clientsInfo[clientId].TypesOfAccounts.Any(a => a.EqualsWith(new DepositAccount()))) _clientsInfo[clientId].TypesOfAccounts.Add(new DepositAccount());
             _accounts.Add(new DepositAccount(clientId));
             _transactions[_accounts[^1].GetId()] = new List<Transaction>();
             return _accounts[^1];
@@ -58,7 +61,7 @@ namespace Banks.Classes
 
         public IAccount AddCreditAccountForClient(Guid clientId)
         {
-            if (_clients.All(c => c.Id != clientId)) throw new BankException("No such client in this bank");
+            if (!_clientsInfo.ContainsKey(clientId)) throw new BankException("No such client in this bank");
             _accounts.Add(new CreditAccount(clientId));
             _transactions[_accounts[^1].GetId()] = new List<Transaction>();
             return _accounts[^1];
@@ -168,14 +171,15 @@ namespace Banks.Classes
             }
         }
 
+        public IEnumerable<string> Notify(IAccount account)
+        {
+            return _clientsInfo.Values.Where(ci => ci.TypesOfAccounts.Any(a => a.EqualsWith(account))).Select(clientInfo => clientInfo.Client.Notify()).ToList();
+        }
+
         private bool IfClientVerified(Guid clientId)
         {
-            foreach (Client c in _clients.Where(c => c.Id == clientId))
-            {
-                return c.IsVerified();
-            }
-
-            throw new BankException("No such client in this bank");
+            if (!_clientsInfo.ContainsKey(clientId)) throw new BankException("No such client in this bank");
+            return _clientsInfo[clientId].Client.IsVerified();
         }
     }
 }
