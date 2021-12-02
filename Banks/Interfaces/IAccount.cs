@@ -14,5 +14,6 @@ namespace Banks.Interfaces
 
         Guid GetId();
         Guid GetOwnerId();
+        bool EqualsWith(IAccount account);
     }
 }

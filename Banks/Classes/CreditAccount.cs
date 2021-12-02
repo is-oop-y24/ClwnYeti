@@ -16,6 +16,13 @@ namespace Banks.Classes
             _id = Guid.NewGuid();
         }
 
+        public CreditAccount()
+        {
+            Balance = 0;
+            _idOfOwner = Guid.Empty;
+            _id = Guid.Empty;
+        }
+
         public decimal Balance { get; private set; }
 
         public void ChargeInterests(int days, BankConfiguration bankConfiguration)
@@ -26,7 +33,7 @@ namespace Banks.Classes
         {
             if (Balance < 0)
             {
-                Balance -= days * bankConfiguration.CommissionForCreditAccount;
+                Balance -= days * bankConfiguration.CreditAccountConfiguration.Commission;
             }
         }
 
@@ -37,7 +44,7 @@ namespace Banks.Classes
 
         public void Withdraw(decimal money, BankConfiguration bankConfiguration)
         {
-            if (Balance - money < -bankConfiguration.CreditLimitForCreditAccount)
+            if (Balance - money < -bankConfiguration.CreditAccountConfiguration.CreditLimit)
             {
                 throw new BankException("Not enough money on account");
             }
@@ -55,6 +62,11 @@ namespace Banks.Classes
         public Guid GetOwnerId()
         {
             return _idOfOwner;
+        }
+
+        public bool EqualsWith(IAccount account)
+        {
+            return GetType() == account.GetType() && _id == account.GetId() && _idOfOwner == GetOwnerId();
         }
     }
 }

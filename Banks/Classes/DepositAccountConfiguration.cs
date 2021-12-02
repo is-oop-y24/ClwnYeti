@@ -6,33 +6,52 @@ namespace Banks.Classes
 {
     public class DepositAccountConfiguration
     {
-        private readonly List<InterestRange> _interestRanges;
-
         public DepositAccountConfiguration()
         {
-            _interestRanges = new List<InterestRange>();
+            InterestRanges = new List<InterestRange>();
+            DefaultInterest = 5;
         }
 
-        public static DepositAccountConfiguration Default()
+        public DepositAccountConfiguration(List<InterestRange> interestRanges)
         {
-            var defaultValue = new DepositAccountConfiguration();
-            defaultValue.AddBottomLineOfMoneyAndInterest(0, decimal.MaxValue, 2);
-            return defaultValue;
-        }
-
-        public void AddBottomLineOfMoneyAndInterest(decimal startOfRange, decimal endOfRange, decimal interest)
-        {
-            if (_interestRanges.Any(ir => ir.IsHaveCollision(startOfRange, endOfRange)))
+            if (interestRanges.Any(ir1 => interestRanges.Any(ir2 => ir1 != ir2 && InterestRange.IsHaveCollision(ir1, ir2))))
             {
-                throw new BankException("Ranges of interests have a collision");
+                throw new BankException("Ranges of interest have a collision");
             }
 
-            _interestRanges.Add(new InterestRange(startOfRange, endOfRange, interest));
+            InterestRanges = interestRanges;
+            DefaultInterest = 5;
         }
 
-        public List<InterestRange> GetADepositConfiguration()
+        public DepositAccountConfiguration(List<InterestRange> interestRanges, decimal defaultInterestForDepositAccount)
         {
-            return _interestRanges;
+            if (defaultInterestForDepositAccount < 0)
+            {
+                throw new BankException("Interest can't be negative");
+            }
+
+            if (interestRanges.Any(ir1 => interestRanges.Any(ir2 => ir1 != ir2 && InterestRange.IsHaveCollision(ir1, ir2))))
+            {
+                throw new BankException("Ranges of interest have a collision");
+            }
+
+            InterestRanges = interestRanges;
+            DefaultInterest = defaultInterestForDepositAccount;
         }
+
+        public DepositAccountConfiguration(decimal defaultInterestForDepositAccount)
+        {
+            if (defaultInterestForDepositAccount < 0)
+            {
+                throw new BankException("Interest can't be negative");
+            }
+
+            InterestRanges = new List<InterestRange>();
+            DefaultInterest = defaultInterestForDepositAccount;
+        }
+
+        public decimal DefaultInterest { get; }
+
+        public List<InterestRange> InterestRanges { get; }
     }
 }

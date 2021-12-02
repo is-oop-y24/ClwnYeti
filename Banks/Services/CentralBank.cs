@@ -49,15 +49,40 @@ namespace Banks.Services
             throw new BankException("There is no such bank in this system");
         }
 
-        public BankConfiguration SetAConfigurationForBank(BankConfiguration configuration, Guid bankId)
+        public void SetACreditAccountConfigurationForBank(CreditAccountConfiguration configuration, Guid bankId)
         {
             foreach (Bank b in _banks.Where(b => b.Id == bankId))
             {
-                b.Configuration = configuration;
-                return configuration;
+                b.Configuration.CreditAccountConfiguration = configuration;
+                b.Notify(new CreditAccount());
+                return;
             }
 
-            throw new BankException("There is no such bank in this system");
+            throw new BankException("There is no such bank");
+        }
+
+        public void SetADepositAccountConfigurationForBank(DepositAccountConfiguration configuration, Guid bankId)
+        {
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                b.Configuration.DepositAccountConfiguration = configuration;
+                b.Notify(new DepositAccount());
+                return;
+            }
+
+            throw new BankException("There is no such bank");
+        }
+
+        public void SetADebitAccountConfigurationForBank(DebitAccountConfiguration configuration, Guid bankId)
+        {
+            foreach (Bank b in _banks.Where(b => b.Id == bankId))
+            {
+                b.Configuration.DebitAccountConfiguration = configuration;
+                b.Notify(new DebitAccount());
+                return;
+            }
+
+            throw new BankException("There is no such bank");
         }
 
         public void MakeATransferBetweenAccountsInBank(Guid bankId, Guid accountFromId, decimal money, Guid accountToId)

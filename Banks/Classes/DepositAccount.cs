@@ -16,16 +16,23 @@ namespace Banks.Classes
             _id = Guid.NewGuid();
         }
 
+        public DepositAccount()
+        {
+            _idOfOwner = Guid.Empty;
+            Balance = 0;
+            _id = Guid.Empty;
+        }
+
         public decimal Balance { get; private set; }
 
         public void ChargeInterests(int days, BankConfiguration bankConfiguration)
         {
             for (int i = 0; i < days; i++)
             {
-                InterestRange ir = bankConfiguration.InterestsForDepositAccount.GetADepositConfiguration().FirstOrDefault(j => j.InRange(Balance));
+                InterestRange ir = bankConfiguration.DepositAccountConfiguration.InterestRanges.FirstOrDefault(j => j.InRange(Balance));
                 if (ir == null)
                 {
-                    Balance *= 1 + (bankConfiguration.DefaultInterestForDepositAccount / 100);
+                    Balance *= 1 + (bankConfiguration.DepositAccountConfiguration.DefaultInterest / 100);
                 }
                 else
                 {
@@ -56,6 +63,11 @@ namespace Banks.Classes
         public Guid GetOwnerId()
         {
             return _idOfOwner;
+        }
+
+        public bool EqualsWith(IAccount account)
+        {
+            return GetType() == account.GetType() && _id == account.GetId() && _idOfOwner == GetOwnerId();
         }
     }
 }

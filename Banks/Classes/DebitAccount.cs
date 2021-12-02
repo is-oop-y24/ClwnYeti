@@ -15,13 +15,20 @@ namespace Banks.Classes
             _id = Guid.NewGuid();
         }
 
+        public DebitAccount()
+        {
+            Balance = 0;
+            _idOfOwner = Guid.Empty;
+            _id = Guid.Empty;
+        }
+
         public decimal Balance { get; private set; }
 
         public void ChargeInterests(int days, BankConfiguration bankConfiguration)
         {
             for (int i = 0; i < days; i++)
             {
-                Balance *= 1 + (bankConfiguration.InterestForDebitAccount / 100);
+                Balance *= 1 + (bankConfiguration.DebitAccountConfiguration.Interest / 100);
             }
         }
 
@@ -48,6 +55,11 @@ namespace Banks.Classes
         public Guid GetOwnerId()
         {
             return _idOfOwner;
+        }
+
+        public bool EqualsWith(IAccount account)
+        {
+            return GetType() == account.GetType() && _id == account.GetId() && _idOfOwner == GetOwnerId();
         }
     }
 }
