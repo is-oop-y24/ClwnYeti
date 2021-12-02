@@ -75,44 +75,62 @@ namespace Banks.Classes
         return _accounts[^1];
     }
 
-    public void MakeTransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo)
+    public Transaction TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo)
     {
+        if (!_transactions.ContainsKey(accountIdFrom))
+            throw new BankException("Such account doesn't exist in this bank");
         foreach (IAccount a in _accounts.Where(a => a.GetId() == accountIdFrom))
         {
             if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
                 throw new BankException("Owner of one of accounts is not verified");
+            if (!_transactions.ContainsKey(accountIdTo))
+                throw new BankException("Such account doesn't exist in this bank");
             foreach (IAccount b in _accounts.Where(b => b.GetId() == accountIdTo))
             {
                 if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
                     throw new BankException("Owner of one of accounts is not verified");
                 a.Withdraw(money, Configuration);
                 b.Replenish(money, Configuration);
-                _transactions[accountIdFrom].Add(new Transaction(accountIdFrom, money, accountIdTo));
-                _transactions[accountIdTo].Add(new Transaction(accountIdFrom, money, accountIdTo));
+                var id = Guid.NewGuid();
+                _transactions[accountIdFrom].Add(new Transaction(id, accountIdFrom, money, accountIdTo));
+                _transactions[accountIdTo].Add(new Transaction(id, accountIdFrom, money, accountIdTo));
+                return _transactions[accountIdFrom][^1];
             }
         }
+
+        throw new BankException("Something went wrong");
     }
 
-    public void ReplenishToAccount(decimal money, Guid accountIdTo)
+    public Transaction ReplenishToAccount(decimal money, Guid accountIdTo)
     {
+        if (!_transactions.ContainsKey(accountIdTo))
+            throw new BankException("Such account doesn't exist in this bank");
         foreach (IAccount a in _accounts.Where(a => a.GetId() == accountIdTo))
         {
             if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
                 throw new BankException("Owner of accounts is not verified");
             a.Replenish(money, Configuration);
-            _transactions[accountIdTo].Add(new Transaction(money, accountIdTo, Guid.NewGuid()));
+            _transactions[accountIdTo].Add(new Transaction(Guid.NewGuid(), Guid.Empty, money, accountIdTo));
+            return _transactions[accountIdTo][^1];
         }
+
+        throw new BankException("Something went wrong");
     }
 
-    public void WithdrawFromAccount(Guid accountIdFrom, decimal money)
+    public Transaction WithdrawFromAccount(Guid accountIdFrom, decimal money)
     {
+        if (!_transactions.ContainsKey(accountIdFrom))
+            throw new BankException("Such account doesn't exist in this bank");
         foreach (IAccount a in _accounts.Where(a => a.GetId() == accountIdFrom))
         {
             if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
                 throw new BankException("Owner of accounts is not verified");
             a.Withdraw(money, Configuration);
-            _transactions[accountIdFrom].Add(new Transaction(accountIdFrom, money, Guid.NewGuid()));
+            _transactions[accountIdFrom].Add(new Transaction(Guid.NewGuid(), accountIdFrom, money, Guid.Empty));
+            return _transactions[accountIdFrom][^1];
         }
+
+        throw new BankException("Something went wrong");
     }
 
     public void CancelLastTransaction(Guid accountId)
@@ -127,7 +145,8 @@ namespace Banks.Classes
                 foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
                 {
                     a.Replenish(_transactions[accountId][^1].Money, Configuration);
-                    _transactions[accountId].RemoveAt(_transactions[accountId].Count);
+                    _transactions[accountId].RemoveAt(_transactions[accountId].Count - 1);
+                    return;
                 }
             }
             else
@@ -141,14 +160,16 @@ namespace Banks.Classes
                 {
                     a.Withdraw(_transactions[accountId][^1].Money, Configuration);
                     _transactions[_transactions[accountId][^1].AccountIdTo]
-                        .RemoveAt(_transactions[_transactions[accountId][^1].AccountIdTo].Count);
+                        .RemoveAt(_transactions[_transactions[accountId][^1].AccountIdTo].Count - 1);
                 }
 
                 foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
                 {
                     a.Replenish(_transactions[accountId][^1].Money, Configuration);
-                    _transactions[accountId].RemoveAt(_transactions[accountId].Count);
+                    _transactions[accountId].RemoveAt(_transactions[accountId].Count - 1);
                 }
+
+                return;
             }
         }
 
@@ -157,6 +178,7 @@ namespace Banks.Classes
             foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
             {
                 a.Withdraw(_transactions[accountId][^1].Money, Configuration);
+                return;
             }
         }
         else

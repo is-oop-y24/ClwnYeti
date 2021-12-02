@@ -13,9 +13,9 @@ namespace Banks.Interfaces
         public IAccount AddDebitAccountForClient(Guid clientId);
         public IAccount AddDepositAccountForClient(Guid clientId);
         public IAccount AddCreditAccountForClient(Guid clientId);
-        public void MakeTransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo);
-        public void ReplenishToAccount(decimal money, Guid accountIdTo);
-        public void WithdrawFromAccount(Guid accountIdFrom, decimal money);
+        public Transaction TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo);
+        public Transaction ReplenishToAccount(decimal money, Guid accountIdTo);
+        public Transaction WithdrawFromAccount(Guid accountIdFrom, decimal money);
         public void CancelLastTransaction(Guid accountId);
         public IEnumerable<string> Notify(IAccount account);
 

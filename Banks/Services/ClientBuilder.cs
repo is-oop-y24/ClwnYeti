@@ -21,7 +21,7 @@ namespace Banks.Services
             _passportId = string.Empty;
         }
 
-        public void SetToClientInvariant(Client client)
+        public void SetToExistingClient(Client client)
         {
             _id = client.Id;
             _name = client.Name;
@@ -87,19 +87,7 @@ namespace Banks.Services
             }
         }
 
-        public void WithId(Guid id)
-        {
-            if (id != Guid.Empty)
-            {
-                _id = id;
-            }
-            else
-            {
-                throw new BankException("The surname is empty");
-            }
-        }
-
-        public Client BuildClient()
+        public Client Build()
         {
             if (_surname == string.Empty || _name == string.Empty)
             {

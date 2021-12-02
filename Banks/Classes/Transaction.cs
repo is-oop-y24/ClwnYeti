@@ -4,28 +4,12 @@ namespace Banks.Classes
 {
     public class Transaction
     {
-        public Transaction(Guid accountIdFrom, decimal money, Guid accountIdTo, Guid id)
+        public Transaction(Guid id, Guid accountIdFrom, decimal money, Guid accountIdTo)
         {
             AccountIdFrom = accountIdFrom;
             Money = money;
             AccountIdTo = accountIdTo;
             Id = id;
-        }
-
-        public Transaction(decimal money, Guid accountIdTo, Guid id)
-        {
-            AccountIdTo = accountIdTo;
-            Id = id;
-            Money = money;
-            AccountIdFrom = Guid.Empty;
-        }
-
-        public Transaction(Guid accountIdFrom, decimal money, Guid id)
-        {
-            AccountIdFrom = accountIdFrom;
-            Money = money;
-            Id = id;
-            AccountIdTo = Guid.Empty;
         }
 
         public Guid Id { get; }
