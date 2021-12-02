@@ -13,14 +13,14 @@ namespace Banks.Classes
         public decimal MaxValue { get; }
         public decimal Interest { get; }
 
+        public static bool IsHaveCollision(InterestRange first, InterestRange second)
+        {
+            return (first.MinValue > second.MinValue && first.MinValue < second.MaxValue) || (first.MaxValue > second.MinValue && first.MaxValue < second.MaxValue);
+        }
+
         public bool InRange(decimal value)
         {
             return value >= MinValue && value <= MaxValue;
-        }
-
-        public bool IsHaveCollision(decimal minValue, decimal maxValue)
-        {
-            return (MinValue > minValue && MinValue < maxValue) || (MaxValue > minValue && MaxValue < maxValue);
         }
     }
 }
