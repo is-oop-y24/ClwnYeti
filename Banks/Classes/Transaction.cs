@@ -37,7 +37,7 @@ namespace Banks.Classes
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == this.GetType() && Equals((Transaction)obj);
+            return obj.GetType() == GetType() && Equals((Transaction)obj);
         }
 
         public override int GetHashCode()
