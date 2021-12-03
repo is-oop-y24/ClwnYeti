@@ -32,7 +32,12 @@ namespace Banks.Classes
             }
         }
 
-        public void CheckCommission(int days, BankConfiguration bankConfiguration)
+        public decimal CheckCommission(BankConfiguration bankConfiguration)
+        {
+            return 0;
+        }
+
+        public void SkipDays(int days)
         {
         }
 

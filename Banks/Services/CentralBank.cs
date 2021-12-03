@@ -49,18 +49,20 @@ namespace Banks.Services
             throw new BankException("There is no bank with this id");
         }
 
-        public Transaction TransferBetweenAccountsFromDifferentBanks(Guid accountFromBankId, Guid accountFromId, Guid accountToBankId, Guid accountToId, decimal money)
+        public List<Transaction> TransferBetweenAccountsFromDifferentBanks(Guid accountFromBankId, Guid accountFromId, Guid accountToBankId, Guid accountToId, decimal money)
         {
             Bank accountFromBank = GetBank(accountFromBankId);
-            Bank accountToBank = GetBank(accountFromBankId);
+            Bank accountToBank = GetBank(accountToBankId);
             IAccount accountFrom = accountFromBank.GetAccount(accountFromId);
             IAccount accountTo = accountToBank.GetAccount(accountToId);
             if (!accountFrom.CanMakeWithdraw(money, accountFromBank.Configuration) ||
                 !accountTo.CanMakeReplenish(money, accountToBank.Configuration))
                 throw new BankException("Can't make a transaction");
             var id = Guid.NewGuid();
-            accountFromBank.WithdrawFromAccount(id, accountToBankId, accountToId, accountFromId, money);
-            return accountFromBank.ReplenishToAccount(id, accountFromBankId, accountFromId, money, accountToId);
+            var transactions = new List<Transaction>();
+            transactions.Add(accountFromBank.WithdrawFromAccount(id, accountToBankId, accountToId, accountFromId, money));
+            transactions.Add(accountToBank.ReplenishToAccount(id, accountFromBankId, accountFromId, money, accountToId));
+            return transactions;
         }
 
         public void CancelLastTransactionOfAccountInBank(Guid accountBankId, Guid accountId)
@@ -69,21 +71,26 @@ namespace Banks.Services
             IAccount account = bankOfAccount.GetAccount(accountId);
             Transaction transaction = bankOfAccount.GetLastTransactionOfAccount(accountId);
             IAccount secondAccount;
+            Transaction transactionForSecond;
             if (transaction.AccountFromBankId == transaction.AccountToBankId)
             {
                 if (transaction.AccountIdTo == accountId)
                 {
                     secondAccount = bankOfAccount.GetAccount(transaction.AccountIdFrom);
-                    if (!account.CanMakeWithdraw(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeReplenish(transaction.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
+                    transactionForSecond = bankOfAccount.GetLastTransactionOfAccount(transaction.AccountIdFrom);
+                    if (!transaction.Equals(transactionForSecond)) throw new BankException("Can't cancel this transaction");
+                    if (!account.CanMakeWithdraw(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeReplenish(transactionForSecond.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
                 }
                 else
                 {
                     secondAccount = bankOfAccount.GetAccount(transaction.AccountIdTo);
-                    if (!account.CanMakeReplenish(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeWithdraw(transaction.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
+                    transactionForSecond = bankOfAccount.GetLastTransactionOfAccount(transaction.AccountIdTo);
+                    if (!transaction.Equals(transactionForSecond)) throw new BankException("Can't cancel this transaction");
+                    if (!account.CanMakeReplenish(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeWithdraw(transactionForSecond.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
                 }
 
                 bankOfAccount.CancelLastTransaction(accountId);
-                bankOfAccount.CancelLastTransaction(transaction.AccountIdTo);
+                bankOfAccount.CancelLastTransaction(secondAccount.GetId());
                 return;
             }
 
@@ -97,11 +104,12 @@ namespace Banks.Services
                 }
 
                 Bank bankOfSecondAccount = GetBank(transaction.AccountToBankId);
-                if (!transaction.Equals(bankOfSecondAccount.GetLastTransactionOfAccount(transaction.AccountIdTo))) throw new BankException("Can't cancel this transaction");
                 secondAccount = bankOfSecondAccount.GetAccount(transaction.AccountIdTo);
-                if (!account.CanMakeReplenish(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeWithdraw(transaction.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
+                transactionForSecond = bankOfSecondAccount.GetLastTransactionOfAccount(transaction.AccountIdTo);
+                if (!transaction.Equals(transactionForSecond)) throw new BankException("Can't cancel this transaction");
+                if (!account.CanMakeReplenish(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeWithdraw(transactionForSecond.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
                 bankOfAccount.CancelLastTransaction(accountId);
-                bankOfAccount.CancelLastTransaction(transaction.AccountIdTo);
+                bankOfSecondAccount.CancelLastTransaction(secondAccount.GetId());
             }
             else
             {
@@ -113,11 +121,12 @@ namespace Banks.Services
                 }
 
                 Bank bankOfSecondAccount = GetBank(transaction.AccountFromBankId);
-                if (!transaction.Equals(bankOfSecondAccount.GetLastTransactionOfAccount(transaction.AccountIdFrom))) throw new BankException("Can't cancel this transaction");
                 secondAccount = bankOfSecondAccount.GetAccount(transaction.AccountIdFrom);
-                if (!account.CanMakeWithdraw(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeReplenish(transaction.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
+                transactionForSecond = bankOfSecondAccount.GetLastTransactionOfAccount(transaction.AccountIdFrom);
+                if (!transaction.Equals(transactionForSecond)) throw new BankException("Can't cancel this transaction");
+                if (!account.CanMakeWithdraw(transaction.Money, bankOfAccount.Configuration) || !secondAccount.CanMakeReplenish(transactionForSecond.Money, bankOfAccount.Configuration)) throw new BankException("Can't cancel this transaction");
                 bankOfAccount.CancelLastTransaction(accountId);
-                bankOfAccount.CancelLastTransaction(transaction.AccountIdFrom);
+                bankOfSecondAccount.CancelLastTransaction(secondAccount.GetId());
             }
         }
     }

@@ -1,5 +1,3 @@
-using System;
-
 namespace Banks.Classes
 {
     public class TimeToSkip

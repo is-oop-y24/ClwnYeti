@@ -29,12 +29,13 @@ namespace Banks.Classes
         {
         }
 
-        public void CheckCommission(int days, BankConfiguration bankConfiguration)
+        public decimal CheckCommission(BankConfiguration bankConfiguration)
         {
-            if (Balance < 0)
-            {
-                Balance -= days * bankConfiguration.CreditAccountConfiguration.Commission;
-            }
+            return Balance < 0 ? bankConfiguration.CreditAccountConfiguration.Commission : 0;
+        }
+
+        public void SkipDays(int days)
+        {
         }
 
         public void Replenish(decimal money, BankConfiguration bankConfiguration)
