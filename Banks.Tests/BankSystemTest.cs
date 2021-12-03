@@ -15,7 +15,7 @@ namespace Banks.Tests
         [SetUp]
         public void Setup()
         {
-            _centralBank = new CentralBank();
+            _centralBank = CentralBank.GetInstance();
         }
 
         [Test]
