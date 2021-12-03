@@ -13,7 +13,7 @@ namespace Banks.Interfaces
         public IAccount AddDebitAccountForClient(Guid clientId);
         public IAccount AddDepositAccountForClient(Guid clientId, int remainingDaysForWork);
         public IAccount AddCreditAccountForClient(Guid clientId);
-        public Transaction TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo);
+        public List<Transaction> TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo);
         public Transaction ReplenishToAccount(decimal money, Guid accountIdTo);
 
         public Transaction ReplenishToAccount(Guid id, Guid accountFromBankId, Guid accountFromId, decimal money, Guid accountIdTo);

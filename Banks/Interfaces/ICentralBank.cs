@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Banks.Classes;
 
 namespace Banks.Interfaces
@@ -10,7 +11,7 @@ namespace Banks.Interfaces
         public Bank AddBank(string name, BankConfiguration bankConfiguration);
         public Bank GetBank(Guid bankId);
 
-        public Transaction TransferBetweenAccountsFromDifferentBanks(Guid accountFromBankId, Guid accountFromId, Guid accountToBankId, Guid accountToId, decimal money);
+        public List<Transaction> TransferBetweenAccountsFromDifferentBanks(Guid accountFromBankId, Guid accountFromId, Guid accountToBankId, Guid accountToId, decimal money);
         public void CancelLastTransactionOfAccountInBank(Guid accountBankId, Guid accountId);
     }
 }

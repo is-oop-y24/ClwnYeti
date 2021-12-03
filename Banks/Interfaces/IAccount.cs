@@ -6,7 +6,8 @@ namespace Banks.Interfaces
     public interface IAccount
     {
         public void ChargeInterests(int month, BankConfiguration bankConfiguration);
-        public void CheckCommission(int days, BankConfiguration bankConfiguration);
+        public decimal CheckCommission(BankConfiguration bankConfiguration);
+        public void SkipDays(int days);
 
         public void Replenish(decimal money, BankConfiguration bankConfiguration);
 

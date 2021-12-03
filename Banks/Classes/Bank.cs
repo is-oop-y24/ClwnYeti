@@ -31,7 +31,7 @@ namespace Banks.Classes
         foreach (IAccount account in _accounts)
         {
             account.ChargeInterests(skippedTime.Months, Configuration);
-            account.CheckCommission(skippedTime.Days, Configuration);
+            account.SkipDays(skippedTime.Days);
         }
     }
 
@@ -77,7 +77,7 @@ namespace Banks.Classes
         return _accounts[^1];
     }
 
-    public Transaction TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo)
+    public List<Transaction> TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo)
     {
         IAccount accountFrom = GetAccount(accountIdFrom);
         IAccount accountTo = GetAccount(accountIdTo);
@@ -85,12 +85,17 @@ namespace Banks.Classes
             throw new BankException("Owner of accounts is not verified");
         if (money > Configuration.CriticalAmountOfMoney && !GetClient(accountTo.GetOwnerId()).IsVerified())
             throw new BankException("Owner of accounts is not verified");
-        accountFrom.Withdraw(money, Configuration);
-        accountTo.Replenish(money, Configuration);
+        decimal commissionFrom = accountFrom.CheckCommission(Configuration);
+        decimal commissionTo = accountTo.CheckCommission(Configuration);
+        accountFrom.Withdraw(money + commissionFrom, Configuration);
+        accountTo.Replenish(money - commissionTo, Configuration);
         var id = Guid.NewGuid();
-        _transactions[accountIdFrom].Add(new Transaction(id, Id, Id, accountIdFrom, money, accountIdTo));
-        _transactions[accountIdTo].Add(new Transaction(id, Id, Id, accountIdFrom, money, accountIdTo));
-        return _transactions[accountIdFrom][^1];
+        var transactions = new List<Transaction>();
+        _transactions[accountIdFrom].Add(new Transaction(id, Id, Id, accountIdFrom, money + commissionFrom, accountIdTo));
+        transactions.Add(_transactions[accountIdFrom][^1]);
+        _transactions[accountIdTo].Add(new Transaction(id, Id, Id, accountIdFrom, money - commissionTo, accountIdTo));
+        transactions.Add(_transactions[accountIdTo][^1]);
+        return transactions;
     }
 
     public Transaction ReplenishToAccount(decimal money, Guid accountIdTo)
@@ -99,8 +104,9 @@ namespace Banks.Classes
         if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
             throw new BankException("Owner of accounts is not verified");
         if (!account.CanMakeReplenish(money, Configuration)) throw new BankException("Can't make a transaction");
-        account.Replenish(money, Configuration);
-        _transactions[accountIdTo].Add(new Transaction(Guid.NewGuid(), Guid.Empty, Id, Guid.Empty, money, accountIdTo));
+        decimal commission = account.CheckCommission(Configuration);
+        account.Replenish(money - commission, Configuration);
+        _transactions[accountIdTo].Add(new Transaction(Guid.NewGuid(), Guid.Empty, Id, Guid.Empty, money - commission, accountIdTo));
         return _transactions[accountIdTo][^1];
     }
 
@@ -109,8 +115,9 @@ namespace Banks.Classes
         IAccount account = GetAccount(accountIdTo);
         if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
             throw new BankException("Owner of accounts is not verified");
-        account.Replenish(money, Configuration);
-        _transactions[accountIdTo].Add(new Transaction(id, accountFromBankId, Id, accountFromId, money, accountIdTo));
+        decimal commission = account.CheckCommission(Configuration);
+        account.Replenish(money - commission, Configuration);
+        _transactions[accountIdTo].Add(new Transaction(id, accountFromBankId, Id, accountFromId, money - commission, accountIdTo));
         return _transactions[accountIdTo][^1];
     }
 
@@ -120,8 +127,9 @@ namespace Banks.Classes
         if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
             throw new BankException("Owner of accounts is not verified");
         if (!account.CanMakeWithdraw(money, Configuration)) throw new BankException("Can't make a transaction");
-        account.Withdraw(money, Configuration);
-        _transactions[accountIdFrom].Add(new Transaction(Guid.NewGuid(), Id, Guid.Empty, accountIdFrom, money, Guid.Empty));
+        decimal commission = account.CheckCommission(Configuration);
+        account.Withdraw(money + commission, Configuration);
+        _transactions[accountIdFrom].Add(new Transaction(Guid.NewGuid(), Id, Guid.Empty, accountIdFrom, money + commission, Guid.Empty));
         return _transactions[accountIdFrom][^1];
     }
 
@@ -130,8 +138,9 @@ namespace Banks.Classes
         IAccount account = GetAccount(accountIdFrom);
         if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
             throw new BankException("Owner of accounts is not verified");
-        account.Withdraw(money, Configuration);
-        _transactions[accountIdFrom].Add(new Transaction(id, Id, accountToBankId, accountIdFrom, money, accountToId));
+        decimal commission = account.CheckCommission(Configuration);
+        account.Withdraw(money + commission, Configuration);
+        _transactions[accountIdFrom].Add(new Transaction(id, Id, accountToBankId, accountIdFrom, money + commission, accountToId));
         return _transactions[accountIdFrom][^1];
     }
 
