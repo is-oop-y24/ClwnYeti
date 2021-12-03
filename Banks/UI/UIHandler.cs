@@ -19,7 +19,7 @@ namespace Banks.UI
 
         public UIHandler()
         {
-            _centralBank = new CentralBank();
+            _centralBank = CentralBank.GetInstance();
             _bankConfigurationBuilder = new BankConfigurationBuilder();
             _debitAccountConfigurationBuilder = new DebitAccountConfigurationBuilder();
             _depositAccountConfigurationBuilder = new DepositAccountConfigurationBuilder();

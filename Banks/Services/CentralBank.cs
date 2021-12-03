@@ -9,13 +9,23 @@ namespace Banks.Services
 {
     public class CentralBank : ICentralBank
     {
+        private static CentralBank _centralBank;
         private readonly List<Bank> _banks;
         private readonly TimeMachine _timeMachine;
-
-        public CentralBank()
+        private CentralBank()
         {
             _banks = new List<Bank>();
             _timeMachine = new TimeMachine();
+        }
+
+        public static CentralBank GetInstance()
+        {
+            if (_centralBank == null)
+            {
+                _centralBank = new CentralBank();
+            }
+
+            return _centralBank;
         }
 
         public void SkipTime(TimeSpan timeToSkip)
