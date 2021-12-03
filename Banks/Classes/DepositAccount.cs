@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Banks.Interfaces;
-using Banks.Tools;
 
 namespace Banks.Classes
 {
@@ -9,10 +9,12 @@ namespace Banks.Classes
     {
         private readonly Guid _id;
         private readonly Guid _idOfOwner;
+        private readonly List<decimal> _bufferOfInterest;
         public DepositAccount(Guid idOfOwner, int remainingDays)
         {
             _idOfOwner = idOfOwner;
             RemainingDays = remainingDays;
+            _bufferOfInterest = new List<decimal>();
             Balance = 0;
             _id = Guid.NewGuid();
         }
@@ -21,6 +23,7 @@ namespace Banks.Classes
         {
             RemainingDays = 0;
             _idOfOwner = Guid.Empty;
+            _bufferOfInterest = new List<decimal>();
             Balance = 0;
             _id = Guid.Empty;
         }
@@ -28,20 +31,14 @@ namespace Banks.Classes
         public decimal Balance { get; set; }
         public int RemainingDays { get; private set; }
 
-        public void ChargeInterests(int month, BankConfiguration bankConfiguration)
+        public void ChargeInterests(int months)
         {
-            for (int i = 0; i < month * 30; i++)
+            for (int i = 0; i < months * 30; i++)
             {
-                InterestRange ir = bankConfiguration.DepositAccountConfiguration.InterestRanges.FirstOrDefault(j => j.InRange(Balance));
-                if (ir == null)
-                {
-                    Balance *= 1 + (bankConfiguration.DepositAccountConfiguration.DefaultInterest / 365);
-                }
-                else
-                {
-                    Balance *= 1 + (ir.Interest / 365);
-                }
+                Balance += _bufferOfInterest[i];
             }
+
+            _bufferOfInterest.RemoveRange(0, months * 30);
         }
 
         public decimal CheckCommission(BankConfiguration bankConfiguration)
@@ -49,9 +46,21 @@ namespace Banks.Classes
             return 0;
         }
 
-        public void SkipDays(int days)
+        public void SkipDays(int days, BankConfiguration bankConfiguration)
         {
             RemainingDays -= days;
+            for (int i = 0; i < days; i++)
+            {
+                InterestRange interestRange = bankConfiguration.DepositAccountConfiguration.InterestRanges.FirstOrDefault(ir => ir.InRange(Balance));
+                if (interestRange == null)
+                {
+                    _bufferOfInterest.Add(Balance * bankConfiguration.DepositAccountConfiguration.DefaultInterest / 365);
+                }
+                else
+                {
+                    _bufferOfInterest.Add(Balance * interestRange.Interest / 365);
+                }
+            }
         }
 
         public void Replenish(decimal money, BankConfiguration bankConfiguration)

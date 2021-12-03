@@ -1,6 +1,5 @@
 using System;
 using Banks.Interfaces;
-using Banks.Tools;
 
 namespace Banks.Classes
 {
@@ -25,7 +24,7 @@ namespace Banks.Classes
 
         public decimal Balance { get; private set; }
 
-        public void ChargeInterests(int month, BankConfiguration bankConfiguration)
+        public void ChargeInterests(int months)
         {
         }
 
@@ -34,7 +33,7 @@ namespace Banks.Classes
             return Balance < 0 ? bankConfiguration.CreditAccountConfiguration.Commission : 0;
         }
 
-        public void SkipDays(int days)
+        public void SkipDays(int days, BankConfiguration bankConfiguration)
         {
         }
 

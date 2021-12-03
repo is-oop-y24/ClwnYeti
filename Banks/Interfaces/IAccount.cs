@@ -5,9 +5,9 @@ namespace Banks.Interfaces
 {
     public interface IAccount
     {
-        public void ChargeInterests(int month, BankConfiguration bankConfiguration);
+        public void ChargeInterests(int months);
         public decimal CheckCommission(BankConfiguration bankConfiguration);
-        public void SkipDays(int days);
+        public void SkipDays(int days, BankConfiguration bankConfiguration);
 
         public void Replenish(decimal money, BankConfiguration bankConfiguration);
 

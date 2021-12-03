@@ -59,10 +59,11 @@ namespace Banks.Services
                 !accountTo.CanMakeReplenish(money, accountToBank.Configuration))
                 throw new BankException("Can't make a transaction");
             var id = Guid.NewGuid();
-            var transactions = new List<Transaction>();
-            transactions.Add(accountFromBank.WithdrawFromAccount(id, accountToBankId, accountToId, accountFromId, money));
-            transactions.Add(accountToBank.ReplenishToAccount(id, accountFromBankId, accountFromId, money, accountToId));
-            return transactions;
+            return new List<Transaction>
+            {
+                accountFromBank.WithdrawFromAccount(id, accountToBankId, accountToId, accountFromId, money),
+                accountToBank.ReplenishToAccount(id, accountFromBankId, accountFromId, money, accountToId),
+            };
         }
 
         public void CancelLastTransactionOfAccountInBank(Guid accountBankId, Guid accountId)
