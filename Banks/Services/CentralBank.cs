@@ -58,6 +58,10 @@ namespace Banks.Services
             if (!accountFrom.CanMakeWithdraw(money, accountFromBank.Configuration) ||
                 !accountTo.CanMakeReplenish(money, accountToBank.Configuration))
                 throw new BankException("Can't make a transaction");
+            if (money > accountFromBank.Configuration.CriticalAmountOfMoney && !accountFromBank.GetClient(accountFrom.GetOwnerId()).IsVerified())
+                throw new BankException("Owner of accounts is not verified");
+            if (money > accountToBank.Configuration.CriticalAmountOfMoney && !accountToBank.GetClient(accountTo.GetOwnerId()).IsVerified())
+                throw new BankException("Owner of accounts is not verified");
             var id = Guid.NewGuid();
             return new List<Transaction>
             {
