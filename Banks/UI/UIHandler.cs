@@ -515,13 +515,28 @@ namespace Banks.UI
             }
         }
 
+        public void TransferBetweenAccountsFromDifferentBanks(IEnumerable<string> arguments)
+        {
+            try
+            {
+                var enumerable = arguments.ToList();
+                if (enumerable.Count() != 5) throw new BankException("Invalid number of arguments");
+                _centralBank.TransferBetweenAccountsFromDifferentBanks(Guid.Parse(enumerable[0]), Guid.Parse(enumerable[1]), Guid.Parse(enumerable[2]), Guid.Parse(enumerable[3]), decimal.Parse(enumerable[3]));
+                Console.WriteLine("Transfer was made");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
         public void CancelLastTransferOfAccountInBank(IEnumerable<string> arguments)
         {
             try
             {
                 var enumerable = arguments.ToList();
                 if (enumerable.Count() != 2) throw new BankException("Invalid number of arguments");
-                _centralBank.GetBank(Guid.Parse(enumerable[0])).CancelLastTransaction(Guid.Parse(enumerable[1]));
+                _centralBank.CancelLastTransactionOfAccountInBank(Guid.Parse(enumerable[0]), Guid.Parse(enumerable[1]));
                 Console.WriteLine("Transfer was canceled");
             }
             catch (Exception e)
@@ -551,8 +566,8 @@ namespace Banks.UI
             try
             {
                 var enumerable = arguments.ToList();
-                if (enumerable.Count() != 2) throw new BankException("Invalid number of arguments");
-                IAccount account = _centralBank.GetBank(Guid.Parse(enumerable[0])).AddDepositAccountForClient(Guid.Parse(enumerable[1]));
+                if (enumerable.Count() != 3) throw new BankException("Invalid number of arguments");
+                IAccount account = _centralBank.GetBank(Guid.Parse(enumerable[0])).AddDepositAccountForClient(Guid.Parse(enumerable[1]), int.Parse(enumerable[2]));
                 Console.WriteLine("Deposit Account was created");
                 Console.WriteLine(account.GetInfo());
             }

@@ -1,9 +1,10 @@
 using System;
+using Banks.Classes;
 
 namespace Banks.Interfaces
 {
     public interface ITimeMachine
     {
-        int HowMuchDaysToSkip(TimeSpan timeToSkip);
+        TimeToSkip HowMuchToSkip(TimeSpan timeToSkip);
     }
 }

@@ -26,12 +26,12 @@ namespace Banks.Classes
     public string Name { get; }
     public Guid Id { get; }
 
-    public void SkipDays(int days)
+    public void SkipTime(TimeToSkip skippedTime)
     {
         foreach (IAccount account in _accounts)
         {
-            account.ChargeInterests(days, Configuration);
-            account.CheckCommission(days, Configuration);
+            account.ChargeInterests(skippedTime.Months, Configuration);
+            account.CheckCommission(skippedTime.Days, Configuration);
         }
     }
 
@@ -57,12 +57,12 @@ namespace Banks.Classes
         return _accounts[^1];
     }
 
-    public IAccount AddDepositAccountForClient(Guid clientId)
+    public IAccount AddDepositAccountForClient(Guid clientId, int remainingDaysForWork)
     {
         if (!_clientsInfo.ContainsKey(clientId)) throw new BankException("No such client in this bank");
         if (!_clientsInfo[clientId].TypesOfAccounts.Any(a => a.EqualsWith(new DepositAccount())))
             _clientsInfo[clientId].TypesOfAccounts.Add(new DepositAccount());
-        _accounts.Add(new DepositAccount(clientId));
+        _accounts.Add(new DepositAccount(clientId, remainingDaysForWork));
         _transactions[_accounts[^1].GetId()] = new List<Transaction>();
         return _accounts[^1];
     }
@@ -70,6 +70,8 @@ namespace Banks.Classes
     public IAccount AddCreditAccountForClient(Guid clientId)
     {
         if (!_clientsInfo.ContainsKey(clientId)) throw new BankException("No such client in this bank");
+        if (!_clientsInfo[clientId].TypesOfAccounts.Any(a => a.EqualsWith(new CreditAccount())))
+            _clientsInfo[clientId].TypesOfAccounts.Add(new DepositAccount());
         _accounts.Add(new CreditAccount(clientId));
         _transactions[_accounts[^1].GetId()] = new List<Transaction>();
         return _accounts[^1];
@@ -77,130 +79,84 @@ namespace Banks.Classes
 
     public Transaction TransferBetweenAccounts(Guid accountIdFrom, decimal money, Guid accountIdTo)
     {
-        if (!_transactions.ContainsKey(accountIdFrom))
-            throw new BankException("Such account doesn't exist in this bank");
-        foreach (IAccount a in _accounts.Where(a => a.GetId() == accountIdFrom))
-        {
-            if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
-                throw new BankException("Owner of one of accounts is not verified");
-            if (!_transactions.ContainsKey(accountIdTo))
-                throw new BankException("Such account doesn't exist in this bank");
-            foreach (IAccount b in _accounts.Where(b => b.GetId() == accountIdTo))
-            {
-                if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
-                    throw new BankException("Owner of one of accounts is not verified");
-                a.Withdraw(money, Configuration);
-                b.Replenish(money, Configuration);
-                var id = Guid.NewGuid();
-                _transactions[accountIdFrom].Add(new Transaction(id, accountIdFrom, money, accountIdTo));
-                _transactions[accountIdTo].Add(new Transaction(id, accountIdFrom, money, accountIdTo));
-                return _transactions[accountIdFrom][^1];
-            }
-        }
-
-        throw new BankException("Something went wrong");
+        IAccount accountFrom = GetAccount(accountIdFrom);
+        IAccount accountTo = GetAccount(accountIdTo);
+        if (money > Configuration.CriticalAmountOfMoney && !GetClient(accountFrom.GetOwnerId()).IsVerified())
+            throw new BankException("Owner of accounts is not verified");
+        if (money > Configuration.CriticalAmountOfMoney && !GetClient(accountTo.GetOwnerId()).IsVerified())
+            throw new BankException("Owner of accounts is not verified");
+        accountFrom.Withdraw(money, Configuration);
+        accountTo.Replenish(money, Configuration);
+        var id = Guid.NewGuid();
+        _transactions[accountIdFrom].Add(new Transaction(id, Id, Id, accountIdFrom, money, accountIdTo));
+        _transactions[accountIdTo].Add(new Transaction(id, Id, Id, accountIdFrom, money, accountIdTo));
+        return _transactions[accountIdFrom][^1];
     }
 
     public Transaction ReplenishToAccount(decimal money, Guid accountIdTo)
     {
-        if (!_transactions.ContainsKey(accountIdTo))
-            throw new BankException("Such account doesn't exist in this bank");
-        foreach (IAccount a in _accounts.Where(a => a.GetId() == accountIdTo))
-        {
-            if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
-                throw new BankException("Owner of accounts is not verified");
-            a.Replenish(money, Configuration);
-            _transactions[accountIdTo].Add(new Transaction(Guid.NewGuid(), Guid.Empty, money, accountIdTo));
-            return _transactions[accountIdTo][^1];
-        }
+        IAccount account = GetAccount(accountIdTo);
+        if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
+            throw new BankException("Owner of accounts is not verified");
+        if (!account.CanMakeReplenish(money, Configuration)) throw new BankException("Can't make a transaction");
+        account.Replenish(money, Configuration);
+        _transactions[accountIdTo].Add(new Transaction(Guid.NewGuid(), Guid.Empty, Id, Guid.Empty, money, accountIdTo));
+        return _transactions[accountIdTo][^1];
+    }
 
-        throw new BankException("Something went wrong");
+    public Transaction ReplenishToAccount(Guid id, Guid accountFromBankId, Guid accountFromId, decimal money, Guid accountIdTo)
+    {
+        IAccount account = GetAccount(accountIdTo);
+        if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
+            throw new BankException("Owner of accounts is not verified");
+        account.Replenish(money, Configuration);
+        _transactions[accountIdTo].Add(new Transaction(id, accountFromBankId, Id, accountFromId, money, accountIdTo));
+        return _transactions[accountIdTo][^1];
     }
 
     public Transaction WithdrawFromAccount(Guid accountIdFrom, decimal money)
     {
-        if (!_transactions.ContainsKey(accountIdFrom))
-            throw new BankException("Such account doesn't exist in this bank");
-        foreach (IAccount a in _accounts.Where(a => a.GetId() == accountIdFrom))
-        {
-            if (money > Configuration.CriticalAmountOfMoney && !GetClient(a.GetOwnerId()).IsVerified())
-                throw new BankException("Owner of accounts is not verified");
-            a.Withdraw(money, Configuration);
-            _transactions[accountIdFrom].Add(new Transaction(Guid.NewGuid(), accountIdFrom, money, Guid.Empty));
-            return _transactions[accountIdFrom][^1];
-        }
+        IAccount account = GetAccount(accountIdFrom);
+        if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
+            throw new BankException("Owner of accounts is not verified");
+        if (!account.CanMakeWithdraw(money, Configuration)) throw new BankException("Can't make a transaction");
+        account.Withdraw(money, Configuration);
+        _transactions[accountIdFrom].Add(new Transaction(Guid.NewGuid(), Id, Guid.Empty, accountIdFrom, money, Guid.Empty));
+        return _transactions[accountIdFrom][^1];
+    }
 
-        throw new BankException("Something went wrong");
+    public Transaction WithdrawFromAccount(Guid id, Guid accountToBankId, Guid accountToId, Guid accountIdFrom, decimal money)
+    {
+        IAccount account = GetAccount(accountIdFrom);
+        if (money > Configuration.CriticalAmountOfMoney && !GetClient(account.GetOwnerId()).IsVerified())
+            throw new BankException("Owner of accounts is not verified");
+        account.Withdraw(money, Configuration);
+        _transactions[accountIdFrom].Add(new Transaction(id, Id, accountToBankId, accountIdFrom, money, accountToId));
+        return _transactions[accountIdFrom][^1];
+    }
+
+    public Transaction GetLastTransactionOfAccount(Guid accountId)
+    {
+        if (!_transactions.ContainsKey(accountId)) throw new BankException("Such account doesn't exist in this bank");
+        if (_transactions[accountId].Count == 0) throw new BankException("Account didn't had any transactions");
+        return _transactions[accountId][^1];
     }
 
     public void CancelLastTransaction(Guid accountId)
     {
-        if (!_transactions.ContainsKey(accountId))
-            throw new BankException("Such account doesn't exist in this bank");
+        IAccount account = GetAccount(accountId);
         if (_transactions[accountId].Count == 0) throw new BankException("Account didn't had any transactions");
-        if (_transactions[accountId][^1].AccountIdFrom == accountId)
+        Transaction transaction = _transactions[accountId][^1];
+        if (account.GetId() == transaction.AccountIdTo)
         {
-            if (_transactions[accountId][^1].AccountIdTo == Guid.Empty)
-            {
-                foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
-                {
-                    a.Replenish(_transactions[accountId][^1].Money, Configuration);
-                    _transactions[accountId].RemoveAt(_transactions[accountId].Count - 1);
-                    return;
-                }
-            }
-            else
-            {
-                if (!Equals(_transactions[_transactions[accountId][^1].AccountIdTo][^1], _transactions[accountId][^1]))
-                {
-                    throw new BankException("Can't cancel this transaction");
-                }
-
-                foreach (IAccount a in _accounts.Where(a => a.GetId() == _transactions[accountId][^1].AccountIdTo))
-                {
-                    a.Withdraw(_transactions[accountId][^1].Money, Configuration);
-                    _transactions[_transactions[accountId][^1].AccountIdTo]
-                        .RemoveAt(_transactions[_transactions[accountId][^1].AccountIdTo].Count - 1);
-                }
-
-                foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
-                {
-                    a.Replenish(_transactions[accountId][^1].Money, Configuration);
-                    _transactions[accountId].RemoveAt(_transactions[accountId].Count - 1);
-                }
-
-                return;
-            }
-        }
-
-        if (_transactions[accountId][^1].AccountIdFrom == Guid.Empty)
-        {
-            foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
-            {
-                a.Withdraw(_transactions[accountId][^1].Money, Configuration);
-                return;
-            }
+            account.Withdraw(transaction.Money, Configuration);
         }
         else
         {
-            if (!Equals(_transactions[_transactions[accountId][^1].AccountIdFrom][^1], _transactions[accountId][^1]))
-            {
-                throw new BankException("Can't cancel this transaction");
-            }
-
-            foreach (IAccount a in _accounts.Where(a => a.GetId() == _transactions[accountId][^1].AccountIdFrom))
-            {
-                a.Replenish(_transactions[accountId][^1].Money, Configuration);
-                _transactions[_transactions[accountId][^1].AccountIdFrom]
-                    .RemoveAt(_transactions[_transactions[accountId][^1].AccountIdFrom].Count);
-            }
-
-            foreach (IAccount a in _accounts.Where(a => a.GetId() == accountId))
-            {
-                a.Withdraw(_transactions[accountId][^1].Money, Configuration);
-                _transactions[accountId].RemoveAt(_transactions[accountId].Count);
-            }
+            account.Replenish(transaction.Money, Configuration);
         }
+
+        _transactions[accountId].RemoveAt(_transactions[accountId].Count - 1);
     }
 
     public IEnumerable<string> Notify(IAccount account)
@@ -222,6 +178,16 @@ namespace Banks.Classes
         }
 
         throw new BankException("There is no client with this id");
+    }
+
+    public IAccount GetAccount(Guid accountId)
+    {
+        foreach (IAccount account in _accounts.Where(account => account.GetId() == accountId))
+        {
+            return account;
+        }
+
+        throw new BankException("There is no account with this id");
     }
     }
 }

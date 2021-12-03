@@ -47,7 +47,7 @@ namespace Banks.Tests
             Assert.AreEqual(transaction.AccountIdTo, secondAccount.GetId());
             Assert.AreNotEqual(firstInfoOfFirstAccount, secondInfoOfFirstAccount);
             Assert.AreNotEqual(firstInfoOfSecondAccount, secondInfoOfSecondAccount);
-            bank.CancelLastTransaction(firstAccount.GetId());
+            _centralBank.CancelLastTransactionOfAccountInBank(bank.Id, firstAccount.GetId());
             string thirdInfoOfFirstAccount = firstAccount.GetInfo();
             string thirdInfoOfSecondAccount = secondAccount.GetInfo();
             Assert.AreEqual(firstInfoOfFirstAccount, thirdInfoOfFirstAccount);
@@ -78,7 +78,7 @@ namespace Banks.Tests
             Assert.AreEqual(transaction.AccountIdTo, account.GetId());
             string secondInfo = account.GetInfo();
             Assert.AreNotEqual(firstInfo, secondInfo);
-            _centralBank.SkipTime(new TimeSpan(5, 0, 0, 0));
+            _centralBank.SkipTime(new TimeSpan(40, 0, 0, 0));
             string thirdInfo = account.GetInfo();
             Assert.AreNotEqual(firstInfo, thirdInfo);
         }

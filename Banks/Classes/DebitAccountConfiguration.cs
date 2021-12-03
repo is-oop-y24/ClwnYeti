@@ -1,5 +1,3 @@
-using Banks.Tools;
-
 namespace Banks.Classes
 {
     public class DebitAccountConfiguration
