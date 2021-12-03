@@ -24,11 +24,11 @@ namespace Banks.Classes
 
         public decimal Balance { get; private set; }
 
-        public void ChargeInterests(int days, BankConfiguration bankConfiguration)
+        public void ChargeInterests(int month, BankConfiguration bankConfiguration)
         {
-            for (int i = 0; i < days; i++)
+            for (int i = 0; i < month * 30; i++)
             {
-                Balance *= 1 + (bankConfiguration.DebitAccountConfiguration.Interest / 100);
+                Balance *= 1 + (bankConfiguration.DebitAccountConfiguration.Interest / 365);
             }
         }
 
@@ -43,7 +43,6 @@ namespace Banks.Classes
 
         public void Withdraw(decimal money, BankConfiguration bankConfiguration)
         {
-            if (Balance - money < 0) throw new BankException("Not enough money on account");
             Balance -= money;
         }
 
@@ -65,6 +64,16 @@ namespace Banks.Classes
         public bool EqualsWith(IAccount account)
         {
             return GetType() == account.GetType() && _id == account.GetId() && _idOfOwner == GetOwnerId();
+        }
+
+        public bool CanMakeReplenish(decimal money, BankConfiguration bankConfiguration)
+        {
+            return true;
+        }
+
+        public bool CanMakeWithdraw(decimal money, BankConfiguration bankConfiguration)
+        {
+            return Balance >= money;
         }
     }
 }

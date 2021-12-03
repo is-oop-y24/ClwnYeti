@@ -253,6 +253,12 @@ namespace Banks.UI
                     break;
                 }
 
+                case "TransferBetweenAccountsBetweenBanks":
+                {
+                    _handler.TransferBetweenAccountsFromDifferentBanks(commandLine);
+                    break;
+                }
+
                 case "Stop":
                 {
                     _isRunning = false;

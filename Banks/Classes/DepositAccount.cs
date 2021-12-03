@@ -9,40 +9,44 @@ namespace Banks.Classes
     {
         private readonly Guid _id;
         private readonly Guid _idOfOwner;
-        public DepositAccount(Guid idOfOwner)
+        public DepositAccount(Guid idOfOwner, int remainingDays)
         {
             _idOfOwner = idOfOwner;
+            RemainingDays = remainingDays;
             Balance = 0;
             _id = Guid.NewGuid();
         }
 
         public DepositAccount()
         {
+            RemainingDays = 0;
             _idOfOwner = Guid.Empty;
             Balance = 0;
             _id = Guid.Empty;
         }
 
         public decimal Balance { get; set; }
+        public int RemainingDays { get; private set; }
 
-        public void ChargeInterests(int days, BankConfiguration bankConfiguration)
+        public void ChargeInterests(int month, BankConfiguration bankConfiguration)
         {
-            for (int i = 0; i < days; i++)
+            for (int i = 0; i < month * 30; i++)
             {
                 InterestRange ir = bankConfiguration.DepositAccountConfiguration.InterestRanges.FirstOrDefault(j => j.InRange(Balance));
                 if (ir == null)
                 {
-                    Balance *= 1 + (bankConfiguration.DepositAccountConfiguration.DefaultInterest / 100);
+                    Balance *= 1 + (bankConfiguration.DepositAccountConfiguration.DefaultInterest / 365);
                 }
                 else
                 {
-                    Balance *= 1 + (ir.Interest / 100);
+                    Balance *= 1 + (ir.Interest / 365);
                 }
             }
         }
 
         public void CheckCommission(int days, BankConfiguration bankConfiguration)
         {
+            RemainingDays -= days;
         }
 
         public void Replenish(decimal money, BankConfiguration bankConfiguration)
@@ -52,7 +56,7 @@ namespace Banks.Classes
 
         public void Withdraw(decimal money, BankConfiguration bankConfiguration)
         {
-            throw new BankException("Can't withdraw money from deposit card");
+            Balance -= money;
         }
 
         public Guid GetId()
@@ -73,6 +77,16 @@ namespace Banks.Classes
         public bool EqualsWith(IAccount account)
         {
             return GetType() == account.GetType() && _id == account.GetId() && _idOfOwner == GetOwnerId();
+        }
+
+        public bool CanMakeReplenish(decimal money, BankConfiguration bankConfiguration)
+        {
+            return true;
+        }
+
+        public bool CanMakeWithdraw(decimal money, BankConfiguration bankConfiguration)
+        {
+            return RemainingDays > 0 && Balance >= money;
         }
     }
 }
