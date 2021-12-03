@@ -30,8 +30,8 @@ namespace Banks.Classes
     {
         foreach (IAccount account in _accounts)
         {
-            account.ChargeInterests(skippedTime.Months);
             account.SkipDays(skippedTime.Days, Configuration);
+            account.ChargeInterests(skippedTime.Months);
         }
     }
 
