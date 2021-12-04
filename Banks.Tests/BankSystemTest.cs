@@ -23,12 +23,13 @@ namespace Banks.Tests
             _client = new Client("Миксаил", "Кузутов", "Пупкина 12", "159357456258");
             _bank = _centralBank.AddBank("Банк Приколов");
             _secondBank = _centralBank.AddBank("Банк Приколов");
-            _secondClient = _secondBank.AddClient(new Client("Миксаил", "Кузутов", "Пупкина 12", "159357456258"));
+            _secondClient = new Client("Миксаил", "Кузутов", string.Empty, string.Empty);
         }
 
         [Test]
         public void AddClient()
         {
+            _bank.AddClient(_client);
             Client clientValue = _bank.GetClient(_bank.AddClient(_client).Id);
             Assert.AreEqual(_client.Name, clientValue.Name);
             Assert.AreEqual(_client.Surname, clientValue.Surname);
@@ -39,6 +40,7 @@ namespace Banks.Tests
         [Test]
         public void AddAccountsForClientAndMakeATransferAndCancelIt_ClientIsVerified()
         {
+            _bank.AddClient(_client);
             IAccount firstAccount = _bank.AddCreditAccountForClient(_client.Id);
             string firstInfoOfFirstAccount = firstAccount.GetInfo();
             IAccount secondAccount = _bank.AddCreditAccountForClient(_client.Id);
@@ -70,9 +72,11 @@ namespace Banks.Tests
                 [Test]
         public void AddAccountsForClientAndMakeATransferAndCancelIt_ClientIsVerified_DifferentBanks()
         {
+            _bank.AddClient(_client);
+            _secondBank.AddClient(_client);
             IAccount firstAccount = _bank.AddCreditAccountForClient(_client.Id);
             string firstInfoOfFirstAccount = firstAccount.GetInfo();
-            IAccount secondAccount = _secondBank.AddCreditAccountForClient(_secondClient.Id);
+            IAccount secondAccount = _secondBank.AddCreditAccountForClient(_client.Id);
             string firstInfoOfSecondAccount = secondAccount.GetInfo();
             List<Transaction> firstTransactions = _centralBank.TransferBetweenAccountsFromDifferentBanks(_bank.Id, firstAccount.GetId(), _secondBank.Id, secondAccount.GetId(), 100);
             List<Transaction> secondTransactions = _centralBank.TransferBetweenAccountsFromDifferentBanks(_bank.Id, firstAccount.GetId(), _secondBank.Id, secondAccount.GetId(), 100);
@@ -100,19 +104,19 @@ namespace Banks.Tests
         [Test]
         public void AddAccountsForClientAndMakeATransfer_ClientIsNotVerified()
         {
-            Bank bank = _centralBank.AddBank("Банк Приколов");
-            Client clientValue = bank.AddClient(new Client("Миксаил", "Кузутов", string.Empty, string.Empty));
-            IAccount firstAccount = bank.AddCreditAccountForClient(clientValue.Id);
-            IAccount secondAccount = bank.AddCreditAccountForClient(clientValue.Id);
+            _bank.AddClient(_secondClient);
+            IAccount firstAccount = _bank.AddCreditAccountForClient(_secondClient.Id);
+            IAccount secondAccount = _bank.AddCreditAccountForClient(_secondClient.Id);
             Assert.Catch<BankException>(() =>
             {
-                bank.TransferBetweenAccounts(firstAccount.GetId(), 2000, secondAccount.GetId());
+                _bank.TransferBetweenAccounts(firstAccount.GetId(), 2000, secondAccount.GetId());
             });
         }
         
         [Test]
         public void AddAccountsForClientAndSkipTime()
         {
+            _bank.AddClient(_client);
             IAccount account = _bank.AddDebitAccountForClient(_client.Id);
             string firstInfo = account.GetInfo();
             Transaction transaction = _bank.ReplenishToAccount(100, account.GetId());
