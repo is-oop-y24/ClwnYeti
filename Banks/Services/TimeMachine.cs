@@ -1,7 +1,6 @@
 using System;
 using Banks.Classes;
 using Banks.Interfaces;
-using Banks.Tools;
 
 namespace Banks.Services
 {
@@ -11,7 +10,6 @@ namespace Banks.Services
         private TimeSpan _timeForMonth;
         public TimeToSkip HowMuchToSkip(TimeSpan timeToSkip)
         {
-            if (timeToSkip < TimeSpan.Zero) throw new BankException("Back in time is prohibited");
             _timeForMonth += timeToSkip;
             _timeForDays += timeToSkip;
             int months = _timeForMonth.Days / 30;
