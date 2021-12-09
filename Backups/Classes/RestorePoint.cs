@@ -32,16 +32,6 @@ namespace Backups.Classes
             return _storages.GetAllStorages();
         }
 
-        public void Restore()
-        {
-            _storages.Restore();
-        }
-
-        public void Restore(string newPath)
-        {
-            _storages.Restore(newPath);
-        }
-
         public IEnumerable<JobObject> GetJobObjects()
         {
             return GetStorages().SelectMany(s => s.GetJobObjects()).ToList();

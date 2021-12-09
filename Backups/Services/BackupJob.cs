@@ -62,50 +62,6 @@ namespace Backups.Services
             return _restorePoints[^1];
         }
 
-        public void RestoreFilesFromRestorePoint(int numberOfPoint)
-        {
-            foreach (RestorePoint r in _restorePoints.Where(r => r.Number == numberOfPoint))
-            {
-                try
-                {
-                    r.Restore();
-                }
-                catch (Exception e)
-                {
-                    _logger.Log(e.Message);
-                    throw e;
-                }
-
-                _logger.Log("Files were restored from restore point");
-                return;
-            }
-
-            _logger.Log("There is no restore point with this number");
-            throw new BackupsException("There is no restore point with this number");
-        }
-
-        public void RestoreFilesFromRestorePoint(int numberOfPoint, string newPath)
-        {
-            foreach (RestorePoint r in _restorePoints.Where(r => r.Number == numberOfPoint))
-            {
-                try
-                {
-                    r.Restore(newPath);
-                }
-                catch (Exception e)
-                {
-                    _logger.Log(e.Message);
-                    throw e;
-                }
-
-                _logger.Log("Files were restored from restore point");
-                return;
-            }
-
-            _logger.Log("There is no restore point with this number");
-            throw new BackupsException("There is no restore point with this number");
-        }
-
         public void CleanPoints(ICleanerPoints cleanerPoints, ISolverWhatToDoWithPoints solver)
         {
             var restorePoints = cleanerPoints.Clean(_restorePoints).ToList();
@@ -155,11 +111,6 @@ namespace Backups.Services
 
             _logger.Log("This file wasn't in backup");
             throw new BackupsException("This file wasn't in backup");
-        }
-
-        public string SaveToJsonFile()
-        {
-            return string.Empty;
         }
     }
 }
