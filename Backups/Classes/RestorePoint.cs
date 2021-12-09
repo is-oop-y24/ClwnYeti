@@ -9,26 +9,26 @@ namespace Backups.Classes
 {
     public class RestorePoint
     {
-        private readonly IStorageRepository _storages;
+        private readonly IEnumerable<Storage> _storages;
         public RestorePoint(int number, IStorageRepository storages)
         {
             Number = number;
             Date = DateTime.Today;
-            _storages = storages;
+            _storages = storages.GetAllStorages();
         }
 
         public RestorePoint(int number, IStorageRepository storages, DateTime dateTime)
         {
             Number = number;
             Date = dateTime;
-            _storages = storages;
+            _storages = storages.GetAllStorages();
         }
 
         public int Number { get; }
         public DateTime Date { get; }
         public IEnumerable<Storage> GetStorages()
         {
-            return _storages.GetAllStorages();
+            return _storages;
         }
 
         public IEnumerable<JobObject> GetJobObjects()
