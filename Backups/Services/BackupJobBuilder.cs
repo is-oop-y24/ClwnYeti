@@ -5,8 +5,8 @@ namespace Backups.Services
 {
     public class BackupJobBuilder
     {
-        private IArchiver _archiver = null;
-        private ILogger _logger = null;
+        private IArchiver _archiver;
+        private ILogger _logger;
         private string _directory = "- -";
 
         public void WithArchiver(IArchiver archiver)

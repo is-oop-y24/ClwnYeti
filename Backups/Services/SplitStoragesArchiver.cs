@@ -14,10 +14,21 @@ namespace Backups.Services
             _repository = repository;
         }
 
-        public IStorageRepository Store(string backupDirectory, int restorePointNumber, List<JobObject> jobObjects, ILogger logger)
+        public IStorageRepository StoreIntoNewRepository(string backupDirectory, int restorePointNumber, List<JobObject> jobObjects, ILogger logger)
         {
             IStorageRepository storageRepository = _repository.WithPath(backupDirectory, restorePointNumber);
-            foreach (Storage storage in jobObjects.Select(j => storageRepository.Add(j)))
+            foreach (Storage storage in jobObjects.Select(j => storageRepository.AddStorage(j)))
+            {
+                logger.Log("Storage was created");
+                logger.Log(storage.Info());
+            }
+
+            return storageRepository;
+        }
+
+        public IStorageRepository StoreIntoCurrentRepository(IStorageRepository storageRepository, string backupDirectory, int restorePointNumber, List<JobObject> jobObjects, ILogger logger)
+        {
+            foreach (Storage storage in jobObjects.Select(storageRepository.AddStorage))
             {
                 logger.Log("Storage was created");
                 logger.Log(storage.Info());

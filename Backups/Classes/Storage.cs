@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace Backups.Classes
 {
@@ -27,6 +26,11 @@ namespace Backups.Classes
         public IEnumerable<JobObject> GetJobObjects()
         {
             return _objects.Select(afp => new JobObject(afp.OldFilePath)).ToList();
+        }
+
+        public int Count()
+        {
+            return _objects.Count;
         }
 
         public string Info()

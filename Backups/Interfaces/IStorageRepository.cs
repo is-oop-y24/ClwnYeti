@@ -7,8 +7,10 @@ namespace Backups.Interfaces
 {
     public interface IStorageRepository
     {
-        public Storage Add(List<JobObject> jobObjects);
-        public Storage Add(JobObject jobObject);
+        public Storage AddStorage(List<JobObject> jobObjects);
+        public Storage AddStorage(JobObject jobObject);
+        public Storage UpdateLastStorage(List<JobObject> jobObjects);
+        public Storage UpdateLastStorage(JobObject jobObject);
         public int Count();
         public Storage GetById(Guid id);
         public IEnumerable<Storage> GetAllStorages();

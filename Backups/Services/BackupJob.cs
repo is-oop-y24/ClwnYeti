@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Backups.Classes;
 using Backups.Interfaces;
 using Backups.Tools;
@@ -33,7 +32,7 @@ namespace Backups.Services
         {
             try
             {
-                _restorePoints.Add(new RestorePoint(_restorePoints.Count, _archiver.Store(_directoryForSave, _restorePoints.Count, _currentJobObjects, _logger), _directoryForSave));
+                _restorePoints.Add(new RestorePoint(_restorePoints.Count, _archiver.StoreIntoNewRepository(_directoryForSave, _restorePoints.Count, _currentJobObjects, _logger), _directoryForSave));
             }
             catch (Exception e)
             {
@@ -50,7 +49,7 @@ namespace Backups.Services
         {
             try
             {
-                _restorePoints.Add(new RestorePoint(_restorePoints.Count, _archiver.Store(_directoryForSave, _restorePoints.Count, _currentJobObjects, _logger), _directoryForSave,  dateTime));
+                _restorePoints.Add(new RestorePoint(_restorePoints.Count, _archiver.StoreIntoNewRepository(_directoryForSave, _restorePoints.Count, _currentJobObjects, _logger), _directoryForSave,  dateTime));
             }
             catch (BackupsException e)
             {

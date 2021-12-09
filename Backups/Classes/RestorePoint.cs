@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Backups.Interfaces;
-using Backups.Services;
 
 namespace Backups.Classes
 {
@@ -46,6 +45,11 @@ namespace Backups.Classes
         public IEnumerable<JobObject> GetJobObjects()
         {
             return GetStorages().SelectMany(s => s.GetJobObjects()).ToList();
+        }
+
+        public IStorageRepository GetRepository()
+        {
+            return _storages;
         }
 
         public void Delete(ILogger logger)

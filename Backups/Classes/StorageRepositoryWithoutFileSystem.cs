@@ -24,17 +24,31 @@ namespace Backups.Classes
             _pathToDirectory = backupDirectory + Path.PathSeparator + restorePointNumber;
         }
 
-        public Storage Add(List<JobObject> jobObjects)
+        public Storage AddStorage(List<JobObject> jobObjects)
         {
             var id = Guid.NewGuid();
             _storages.Add(new Storage(id, _pathToDirectory + "/" + id + ".zip", jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList()));
             return _storages[^1];
         }
 
-        public Storage Add(JobObject jobObject)
+        public Storage AddStorage(JobObject jobObject)
         {
             var id = Guid.NewGuid();
             _storages.Add(new Storage(id, _pathToDirectory + "/" + id + ".zip",  new ArchivedFilePath(jobObject.Path)));
+            return _storages[^1];
+        }
+
+        public Storage UpdateLastStorage(List<JobObject> jobObjects)
+        {
+            if (_storages.Count == 0) throw new BackupsException("Repository doesn't have any storages");
+            _storages[^1] = new Storage(_storages[^1].Id, _pathToDirectory + "/" + _storages[^1].Id + ".zip",  jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList());
+            return _storages[^1];
+        }
+
+        public Storage UpdateLastStorage(JobObject jobObject)
+        {
+            if (_storages.Count == 0) throw new BackupsException("Repository doesn't have any storages");
+            _storages[^1] = new Storage(_storages[^1].Id, _pathToDirectory + "/" + _storages[^1].Id + ".zip", new ArchivedFilePath(jobObject.Path));
             return _storages[^1];
         }
 

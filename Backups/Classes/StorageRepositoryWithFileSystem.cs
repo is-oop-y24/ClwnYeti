@@ -28,7 +28,7 @@ namespace Backups.Classes
             _pathToBackup = backupDirectory;
         }
 
-        public Storage Add(List<JobObject> jobObjects)
+        public Storage AddStorage(List<JobObject> jobObjects)
         {
             if (!Directory.Exists(_pathToBackup))
             {
@@ -58,7 +58,7 @@ namespace Backups.Classes
             return _storages[^1];
         }
 
-        public Storage Add(JobObject jobObject)
+        public Storage AddStorage(JobObject jobObject)
         {
             if (!Directory.Exists(_pathToBackup))
             {
@@ -82,6 +82,63 @@ namespace Backups.Classes
             }
 
             _storages.Add(new Storage(id, _pathToDirectory + Path.PathSeparator + id + ".zip", new ArchivedFilePath(jobObject.Path)));
+            return _storages[^1];
+        }
+
+        public Storage UpdateLastStorage(List<JobObject> jobObjects)
+        {
+            if (_storages.Count == 0) throw new BackupsException("Repository doesn't have any storages");
+            if (!Directory.Exists(_pathToBackup))
+            {
+                Directory.CreateDirectory(_pathToBackup);
+            }
+
+            if (!Directory.Exists(_pathToDirectory))
+            {
+                Directory.CreateDirectory(_pathToDirectory);
+            }
+
+            using (ZipArchive zipArchive = ZipFile.Open(_pathToDirectory + Path.PathSeparator + _storages[^1] + ".zip", ZipArchiveMode.Update))
+            {
+                for (int i = _storages[^1].Count(); i < _storages[^1].Count() + jobObjects.Count(); i++)
+                {
+                    if (!File.Exists(jobObjects[i].Path))
+                    {
+                        throw new BackupsException($"File {jobObjects[i].Path} doesn't exist");
+                    }
+
+                    zipArchive.CreateEntryFromFile(jobObjects[i].Path, i.ToString());
+                }
+            }
+
+            _storages[^1] = new Storage(_storages[^1].Id, _pathToDirectory + Path.PathSeparator + _storages[^1].Id + ".zip", jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList());
+            return _storages[^1];
+        }
+
+        public Storage UpdateLastStorage(JobObject jobObject)
+        {
+            if (_storages.Count == 0) throw new BackupsException("Repository doesn't have any storages");
+            if (!Directory.Exists(_pathToBackup))
+            {
+                Directory.CreateDirectory(_pathToBackup);
+            }
+
+            if (!Directory.Exists(_pathToDirectory))
+            {
+                Directory.CreateDirectory(_pathToDirectory);
+            }
+
+            using (ZipArchive zipArchive = ZipFile.Open(_pathToDirectory + Path.PathSeparator + _storages[^1].Id + ".zip", ZipArchiveMode.Update))
+            {
+                if (!File.Exists(jobObject.Path))
+                {
+                    throw new BackupsException($"File {jobObject.Path} doesn't exist");
+                }
+
+                zipArchive.CreateEntryFromFile(jobObject.Path, 0.ToString());
+            }
+
+            _storages[^1] = new Storage(_storages[^1].Id, _pathToDirectory + Path.PathSeparator + _storages[^1].Id + ".zip", new ArchivedFilePath(jobObject.Path));
             return _storages[^1];
         }
 
