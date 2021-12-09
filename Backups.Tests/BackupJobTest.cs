@@ -15,11 +15,10 @@ namespace Backups.Tests
         public void Setup()
         {
             var backupJobBuilder = new BackupJobBuilder();
-            backupJobBuilder.WithStorageRepository(new StorageRepositoryWithoutFileSystem());
             backupJobBuilder.WithDirectory("C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\Backup");
-            backupJobBuilder.WithArchiver(new SplitStoragesArchiver());
+            backupJobBuilder.WithArchiver(new SplitStoragesArchiver(new StorageRepositoryWithoutFileSystem()));
             _firstBackupJob = backupJobBuilder.Create();
-            backupJobBuilder.WithArchiver(new SingleStorageArchiver());
+            backupJobBuilder.WithArchiver(new SingleStorageArchiver(new StorageRepositoryWithoutFileSystem()));
             _secondBackupJob = backupJobBuilder.Create();
         }
 

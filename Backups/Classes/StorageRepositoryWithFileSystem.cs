@@ -11,25 +11,37 @@ namespace Backups.Classes
     public class StorageRepositoryWithFileSystem : IStorageRepository
     {
         private readonly List<Storage> _storages;
+        private readonly string _pathToDirectory;
+        private readonly string _pathToBackup;
+
         public StorageRepositoryWithFileSystem()
         {
             _storages = new List<Storage>();
+            _pathToDirectory = string.Empty;
+            _pathToBackup = string.Empty;
         }
 
-        public Storage Add(List<JobObject> jobObjects, string backupDirectory, int restorePointNumber)
+        private StorageRepositoryWithFileSystem(string backupDirectory, int restorePointNumber)
         {
-            if (!Directory.Exists(backupDirectory))
+            _storages = new List<Storage>();
+            _pathToDirectory = backupDirectory + Path.PathSeparator + restorePointNumber;
+            _pathToBackup = backupDirectory;
+        }
+
+        public Storage Add(List<JobObject> jobObjects)
+        {
+            if (!Directory.Exists(_pathToBackup))
             {
-                Directory.CreateDirectory(backupDirectory);
+                Directory.CreateDirectory(_pathToBackup);
             }
 
-            if (!Directory.Exists(backupDirectory + "/" + restorePointNumber))
+            if (!Directory.Exists(_pathToDirectory))
             {
-                Directory.CreateDirectory(backupDirectory + "/" + restorePointNumber);
+                Directory.CreateDirectory(_pathToDirectory);
             }
 
             var id = Guid.NewGuid();
-            using (ZipArchive zipArchive = ZipFile.Open(backupDirectory + "/" + restorePointNumber + "/" + id + ".zip", ZipArchiveMode.Update))
+            using (ZipArchive zipArchive = ZipFile.Open(_pathToDirectory + Path.PathSeparator + id + ".zip", ZipArchiveMode.Update))
             {
                 for (int i = 0; i < jobObjects.Count(); i++)
                 {
@@ -42,24 +54,24 @@ namespace Backups.Classes
                 }
             }
 
-            _storages.Add(new Storage(id, backupDirectory + "/" + restorePointNumber + "/" + id + ".zip", jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList()));
+            _storages.Add(new Storage(id, _pathToDirectory + Path.PathSeparator + id + ".zip", jobObjects.Select(j => new ArchivedFilePath(j.Path)).ToList()));
             return _storages[^1];
         }
 
-        public Storage Add(JobObject jobObject, string backupDirectory, int restorePointNumber)
+        public Storage Add(JobObject jobObject)
         {
-            if (!Directory.Exists(backupDirectory))
+            if (!Directory.Exists(_pathToBackup))
             {
-                Directory.CreateDirectory(backupDirectory);
+                Directory.CreateDirectory(_pathToBackup);
             }
 
-            if (!Directory.Exists(backupDirectory + "/" + restorePointNumber))
+            if (!Directory.Exists(_pathToDirectory))
             {
-                Directory.CreateDirectory(backupDirectory + "/" + restorePointNumber);
+                Directory.CreateDirectory(_pathToDirectory);
             }
 
             var id = Guid.NewGuid();
-            using (ZipArchive zipArchive = ZipFile.Open(backupDirectory + "/" + restorePointNumber + "/" + id + ".zip", ZipArchiveMode.Update))
+            using (ZipArchive zipArchive = ZipFile.Open(_pathToDirectory + Path.PathSeparator + id + ".zip", ZipArchiveMode.Update))
             {
                 if (!File.Exists(jobObject.Path))
                 {
@@ -69,13 +81,18 @@ namespace Backups.Classes
                 zipArchive.CreateEntryFromFile(jobObject.Path, 0.ToString());
             }
 
-            _storages.Add(new Storage(id, backupDirectory + "/" + restorePointNumber + "/" + id + ".zip", new ArchivedFilePath(jobObject.Path)));
+            _storages.Add(new Storage(id, _pathToDirectory + Path.PathSeparator + id + ".zip", new ArchivedFilePath(jobObject.Path)));
             return _storages[^1];
         }
 
-        IStorageRepository IStorageRepository.Empty()
+        public int Count()
         {
-            return new StorageRepositoryWithFileSystem();
+            return _storages.Count;
+        }
+
+        IStorageRepository IStorageRepository.WithPath(string backupDirectory, int restorePointNumber)
+        {
+            return new StorageRepositoryWithFileSystem(backupDirectory, restorePointNumber);
         }
 
         public Storage GetById(Guid id)
@@ -91,6 +108,75 @@ namespace Backups.Classes
         public IEnumerable<Storage> GetAllStorages()
         {
             return _storages;
+        }
+
+        public void Restore()
+        {
+            foreach (Storage s in _storages)
+            {
+                using (ZipArchive zipArchive = ZipFile.Open(s.PathToArchive, ZipArchiveMode.Read))
+                {
+                    foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                    {
+                        if (File.Exists(entry.FullName))
+                        {
+                            File.Delete(entry.FullName);
+                        }
+
+                        using (Stream streamFromFileFromArchive = entry.Open())
+                        {
+                            streamFromFileFromArchive.Seek(0, SeekOrigin.Begin);
+                            using (FileStream newFile = File.Create(entry.FullName))
+                            {
+                                streamFromFileFromArchive.CopyTo(newFile);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void Restore(string newPath)
+        {
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+
+            foreach (Storage s in _storages)
+            {
+                using (ZipArchive zipArchive = ZipFile.Open(s.PathToArchive, ZipArchiveMode.Read))
+                {
+                    foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                    {
+                        if (File.Exists(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName)))
+                        {
+                            File.Delete(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName));
+                        }
+
+                        using (Stream streamFromFileFromArchive = entry.Open())
+                        {
+                            streamFromFileFromArchive.Seek(0, SeekOrigin.Begin);
+                            using (FileStream newFile = File.Create(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName)))
+                            {
+                                streamFromFileFromArchive.CopyTo(newFile);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void DeleteAll(ILogger logger)
+        {
+            foreach (Storage s in _storages)
+            {
+                File.Delete(s.PathToArchive);
+                logger.Log("Storage was deleted");
+            }
+
+            _storages.Clear();
+            Directory.Delete(_pathToDirectory);
         }
     }
 }
