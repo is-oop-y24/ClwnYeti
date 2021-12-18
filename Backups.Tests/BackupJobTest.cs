@@ -2,6 +2,7 @@ using Backups.Classes;
 using Backups.Interfaces;
 using Backups.Services;
 using Backups.Tools;
+using BackupsExtra.Entities;
 using NUnit.Framework;
 
 namespace Backups.Tests
@@ -15,11 +16,11 @@ namespace Backups.Tests
         public void Setup()
         {
             var backupJobBuilder = new BackupJobBuilder();
-            backupJobBuilder.WithStorageRepository(new StorageRepositoryWithoutFileSystem());
             backupJobBuilder.WithDirectory("C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\Backup");
-            backupJobBuilder.WithArchiver(new SplitStoragesArchiver());
+            backupJobBuilder.WithArchiver(new SplitStoragesArchiver(new StorageRepositoryWithoutFileSystem()));
+            backupJobBuilder.WithLogger(new LoggerDoNothing());
             _firstBackupJob = backupJobBuilder.Create();
-            backupJobBuilder.WithArchiver(new SingleStorageArchiver());
+            backupJobBuilder.WithArchiver(new SingleStorageArchiver(new StorageRepositoryWithoutFileSystem()));
             _secondBackupJob = backupJobBuilder.Create();
         }
 

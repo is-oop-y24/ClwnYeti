@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Backups.Classes;
-using Backups.Interfaces;
 using Backups.Services;
 
 namespace Backups
@@ -18,11 +17,10 @@ namespace Backups
             FileStream fourthFile = File.Create("C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\JobObjects\\4.txt");
             fourthFile.Close();
             var backupJobBuilder = new BackupJobBuilder();
-            backupJobBuilder.WithStorageRepository(new StorageRepositoryWithFileSystem());
             backupJobBuilder.WithDirectory("C:\\Users\\crazy\\RiderProjects\\ClwnYeti\\Backups\\Backup");
-            backupJobBuilder.WithArchiver(new SplitStoragesArchiver());
+            backupJobBuilder.WithArchiver(new SplitStoragesArchiver(new StorageRepositoryWithFileSystem()));
             BackupJob firstTest = backupJobBuilder.Create();
-            backupJobBuilder.WithArchiver(new SingleStorageArchiver());
+            backupJobBuilder.WithArchiver(new SingleStorageArchiver(new StorageRepositoryWithFileSystem()));
             BackupJob secondTest = backupJobBuilder.Create();
             firstTest.Add(firstFile.Name);
             firstTest.Add(secondFile.Name);

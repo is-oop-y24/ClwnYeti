@@ -21,6 +21,11 @@ namespace Backups.Classes
             return Path != null ? Path.GetHashCode() : 0;
         }
 
+        public string Info()
+        {
+            return $"Job object of file with path {Path}";
+        }
+
         private bool Equals(JobObject other)
         {
             return Path == other.Path;

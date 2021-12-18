@@ -5,8 +5,8 @@ namespace Backups.Services
 {
     public class BackupJobBuilder
     {
-        private IArchiver _archiver = null;
-        private IStorageRepository _repository = null;
+        private IArchiver _archiver;
+        private ILogger _logger;
         private string _directory = "- -";
 
         public void WithArchiver(IArchiver archiver)
@@ -14,14 +14,14 @@ namespace Backups.Services
             _archiver = archiver;
         }
 
-        public void WithStorageRepository(IStorageRepository repository)
-        {
-            _repository = repository;
-        }
-
         public void WithDirectory(string directory)
         {
             _directory = directory;
+        }
+
+        public void WithLogger(ILogger logger)
+        {
+            _logger = logger;
         }
 
         public BackupJob Create()
@@ -31,9 +31,9 @@ namespace Backups.Services
                 throw new BackupsException("Archiver didn't chose");
             }
 
-            if (_repository == null)
+            if (_logger == null)
             {
-                throw new BackupsException("A way how to store files didn't chose");
+                throw new BackupsException("A logger didn't chose");
             }
 
             if (_directory == "- -")
@@ -41,7 +41,7 @@ namespace Backups.Services
                 throw new BackupsException("Directory didn't chose");
             }
 
-            return new BackupJob(_archiver, _repository, _directory);
+            return new BackupJob(_archiver, _directory, _logger);
         }
     }
 }

@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace Backups.Classes
 {
     public class Storage
     {
-        private readonly IEnumerable<ArchivedFilePath> _objects;
-        public Storage(Guid id, string pathToArchive, IEnumerable<ArchivedFilePath> objects)
+        private readonly List<ArchivedFilePath> _objects;
+        public Storage(Guid id, string pathToArchive, List<ArchivedFilePath> objects)
         {
             Id = id;
             PathToArchive = pathToArchive;
@@ -24,10 +23,19 @@ namespace Backups.Classes
 
         public Guid Id { get; }
         public string PathToArchive { get; }
-
         public IEnumerable<JobObject> GetJobObjects()
         {
             return _objects.Select(afp => new JobObject(afp.OldFilePath)).ToList();
+        }
+
+        public int Count()
+        {
+            return _objects.Count;
+        }
+
+        public string Info()
+        {
+            return $"Storage with id {Id} has path to archive {PathToArchive} and {_objects.Count} objects";
         }
     }
 }

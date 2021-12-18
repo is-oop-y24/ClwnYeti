@@ -8,6 +8,8 @@ namespace Backups.Interfaces
         public RestorePoint MakeRestorePoint();
         public RestorePoint MakeRestorePoint(DateTime dateTime);
 
+        public void CleanPoints(ICleanerPoints cleanerPoints, ISolverWhatToDoWithPoints solver);
+
         public JobObject Add(string pathToFile);
 
         public void Delete(string pathToFile);

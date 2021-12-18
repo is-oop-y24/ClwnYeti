@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BackupsExtra
+﻿namespace BackupsExtra
 {
     internal class Program
     {
