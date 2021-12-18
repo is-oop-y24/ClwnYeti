@@ -18,7 +18,7 @@ namespace BackupsExtra.Entities
                 catch (Exception e)
                 {
                     logger.Log(e.Message);
-                    throw;
+                    throw e;
                 }
 
                 logger.Log("Restore point was deleted");

@@ -4,11 +4,11 @@ using BackupsExtra.Interfaces;
 
 namespace BackupsExtra.Entities
 {
-    public class AnyConfigurationOfCombinedCleaner : IConfigurationOfCombinedCleaner
+    public class AllConfigurationOfCombinedCleaner : IConfigurationOfCombinedCleaner
     {
         public bool IsNeededToDelete(IEnumerable<bool> checkers)
         {
-            return checkers.Any(checker => checker);
+            return checkers.All(checker => checker);
         }
     }
 }

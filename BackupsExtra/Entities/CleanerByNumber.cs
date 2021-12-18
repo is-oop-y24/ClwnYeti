@@ -16,7 +16,12 @@ namespace BackupsExtra.Entities
 
         public IEnumerable<RestorePoint> Clean(IEnumerable<RestorePoint> points)
         {
-            return points.Where(p => p.Number < _number);
+            return points.Where(IsNeededToClean);
+        }
+
+        public bool IsNeededToClean(RestorePoint point)
+        {
+            return point.Number < _number;
         }
     }
 }

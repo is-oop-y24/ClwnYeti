@@ -8,11 +8,21 @@ namespace BackupsExtra.Service
 {
     public class ConfigurationOfBackupJobManager
     {
+        private readonly JsonSerializerSettings _settings;
+
+        public ConfigurationOfBackupJobManager()
+        {
+            _settings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+            };
+        }
+
         public BackupJob CreateBackupJobFromFile(string fileName)
         {
             try
             {
-                return (BackupJob)JsonConvert.DeserializeObject(File.ReadAllText(fileName));
+                return (BackupJob)JsonConvert.DeserializeObject(File.ReadAllText(fileName), _settings);
             }
             catch (Exception)
             {
@@ -22,7 +32,7 @@ namespace BackupsExtra.Service
 
         public void SaveBackupJobIntoFile(BackupJob backupJob)
         {
-            File.WriteAllText(backupJob.Id.ToString() + ".json", JsonConvert.SerializeObject(backupJob));
+            File.WriteAllText(backupJob.Id.ToString() + ".json", JsonConvert.SerializeObject(backupJob, _settings));
         }
     }
 }

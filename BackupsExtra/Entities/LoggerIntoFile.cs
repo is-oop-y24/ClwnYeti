@@ -14,7 +14,7 @@ namespace BackupsExtra.Entities
 
         public string Log(string logInfo)
         {
-            File.WriteAllText(_fileName, logInfo + "\n", Encoding.Default);
+            File.AppendAllText(_fileName, logInfo + "\n", Encoding.Default);
             return logInfo;
         }
     }

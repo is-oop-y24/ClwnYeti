@@ -6,7 +6,7 @@ namespace BackupsExtra.Service
     {
         public void RestoreFilesFromRestorePoint(RestorePoint restorePoint)
         {
-            restorePoint.GetRepository().Restore();
+            restorePoint.GetRepository().Restore(null);
         }
 
         public void RestoreFilesFromRestorePoint(RestorePoint restorePoint, string newPath)

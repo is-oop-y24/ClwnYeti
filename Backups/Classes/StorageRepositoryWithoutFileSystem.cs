@@ -72,11 +72,7 @@ namespace Backups.Classes
             return _storages;
         }
 
-        public void Restore()
-        {
-        }
-
-        public void Restore(string newPath)
+        public void Restore(string newPath = null)
         {
         }
 

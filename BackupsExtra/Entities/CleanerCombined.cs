@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Backups.Classes;
@@ -10,18 +9,21 @@ namespace BackupsExtra.Entities
     public class CleanerCombined : ICleanerPoints
     {
         private readonly IConfigurationOfCombinedCleaner _configuration;
-        private readonly int _number;
-        private readonly DateTime _date;
-        public CleanerCombined(IConfigurationOfCombinedCleaner configuration, int number, DateTime date)
+        private readonly IEnumerable<ICleanerPoints> _cleaners;
+        public CleanerCombined(IConfigurationOfCombinedCleaner configuration, IEnumerable<ICleanerPoints> cleaners)
         {
             _configuration = configuration;
-            _number = number;
-            _date = date;
+            _cleaners = cleaners;
         }
 
         public IEnumerable<RestorePoint> Clean(IEnumerable<RestorePoint> points)
         {
-            return points.Where(p => _configuration.IsNeededToDelete(p.Number <= _number, p.Date >= _date)).ToList();
+            return points.Where(IsNeededToClean);
+        }
+
+        public bool IsNeededToClean(RestorePoint point)
+        {
+            return _configuration.IsNeededToDelete(_cleaners.Select(c => c.IsNeededToClean(point)));
         }
     }
 }

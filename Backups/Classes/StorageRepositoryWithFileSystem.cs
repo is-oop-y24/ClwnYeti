@@ -167,35 +167,10 @@ namespace Backups.Classes
             return _storages;
         }
 
-        public void Restore()
+        public void Restore(string newPath = null)
         {
-            foreach (Storage s in _storages)
-            {
-                using (ZipArchive zipArchive = ZipFile.Open(s.PathToArchive, ZipArchiveMode.Read))
-                {
-                    foreach (ZipArchiveEntry entry in zipArchive.Entries)
-                    {
-                        if (File.Exists(entry.FullName))
-                        {
-                            File.Delete(entry.FullName);
-                        }
-
-                        using (Stream streamFromFileFromArchive = entry.Open())
-                        {
-                            streamFromFileFromArchive.Seek(0, SeekOrigin.Begin);
-                            using (FileStream newFile = File.Create(entry.FullName))
-                            {
-                                streamFromFileFromArchive.CopyTo(newFile);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public void Restore(string newPath)
-        {
-            if (!Directory.Exists(newPath))
+            bool pathIsSet = !string.IsNullOrWhiteSpace(newPath);
+            if (pathIsSet && !Directory.Exists(newPath))
             {
                 Directory.CreateDirectory(newPath);
             }
@@ -206,7 +181,7 @@ namespace Backups.Classes
                 {
                     foreach (ZipArchiveEntry entry in zipArchive.Entries)
                     {
-                        if (File.Exists(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName)))
+                        if (pathIsSet && File.Exists(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName)))
                         {
                             File.Delete(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName));
                         }
@@ -214,7 +189,10 @@ namespace Backups.Classes
                         using (Stream streamFromFileFromArchive = entry.Open())
                         {
                             streamFromFileFromArchive.Seek(0, SeekOrigin.Begin);
-                            using (FileStream newFile = File.Create(newPath + Path.PathSeparator + Path.GetFileName(entry.FullName)))
+                            var path = pathIsSet
+                                ? newPath + Path.PathSeparator + Path.GetFileName(entry.FullName)
+                                : entry.FullName;
+                            using (FileStream newFile = File.Create(path))
                             {
                                 streamFromFileFromArchive.CopyTo(newFile);
                             }
