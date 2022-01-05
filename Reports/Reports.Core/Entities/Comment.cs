@@ -11,10 +11,7 @@ namespace Reports.Core.Entities
                 throw new ArgumentNullException(nameof(id), "Id is invalid");
             }
 
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                throw new ArgumentNullException(nameof(content), "Content is invalid");
-            }
+            StringIsValidOrThrowException(content);
             
             Id = id;
             Task = task ?? throw new ArgumentNullException(nameof(task), "Task is invalid");
@@ -28,5 +25,10 @@ namespace Reports.Core.Entities
         public Guid Id { get; private set; }
         public ReportTask Task { get; private set; }
         public string Content { get; private set; }
+        
+        private void StringIsValidOrThrowException(string str)
+        {
+            if (str == null || str.Trim().Equals(string.Empty)) throw new ArgumentNullException(nameof(str), "String is invalid");
+        }
     }
 }

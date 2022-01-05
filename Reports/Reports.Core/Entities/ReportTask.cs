@@ -21,11 +21,7 @@ namespace Reports.Core.Entities
                 throw new ArgumentNullException(nameof(timeOfCreation), "Time of creation is invalid");
             }
             
-            if (string.IsNullOrWhiteSpace(task))
-            {
-                throw new ArgumentNullException(nameof(task), "Task is invalid");
-            }
-
+            StringIsValidOrThrowException(task);
             Id = id;
             TimeOfCreation = timeOfCreation;
             Employee = employee;
@@ -40,10 +36,7 @@ namespace Reports.Core.Entities
             get => _task;
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ArgumentNullException(nameof(value), "Task is invalid");
-                }
+                StringIsValidOrThrowException(value);
                 _task = value;
             }
         }
@@ -67,6 +60,11 @@ namespace Reports.Core.Entities
         private bool Equals(ReportTask other)
         {
             return Id.Equals(other.Id);
+        }
+        
+        private void StringIsValidOrThrowException(string str)
+        {
+            if (str == null || str.Trim().Equals(string.Empty)) throw new ArgumentNullException(nameof(str), "String is invalid");
         }
     }
 }

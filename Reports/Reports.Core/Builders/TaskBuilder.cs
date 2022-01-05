@@ -2,7 +2,7 @@ using System;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
 
-namespace Reports.Core.Services
+namespace Reports.Core.Builders
 {
     public class TaskBuilder : ITaskBuilder
     {

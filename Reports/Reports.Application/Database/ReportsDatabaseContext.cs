@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Reports.Core.Entities;
 
 namespace Reports.Application.Database
@@ -24,24 +23,12 @@ namespace Reports.Application.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            EntityTypeBuilder<Employee> employees = modelBuilder.Entity<Employee>();
-            employees.ToTable("Employees");
-            employees.HasOne(e => e.Mentor);
-            EntityTypeBuilder<ReportTask> reportTasks = modelBuilder.Entity<ReportTask>();
-            reportTasks.ToTable("Tasks");
-            reportTasks.HasOne(t => t.Employee);
-            EntityTypeBuilder<Comment> comments = modelBuilder.Entity<Comment>();
-            comments.ToTable("Comments");
-            comments.HasOne(c => c.Task);
-            EntityTypeBuilder<Report> reports = modelBuilder.Entity<Report>();
-            reports.ToTable("Reports");
-            reports.HasOne(r => r.Employee);
-            reports.HasMany(r => r.Tasks);
-            EntityTypeBuilder<Modification> modifications = modelBuilder.Entity<Modification>();
-            modifications.ToTable("Modifications");
-            modifications.HasOne(m => m.Employee);
-            modifications.HasOne(m => m.Task);
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Employee>().HasOne(e => e.Mentor);
+            modelBuilder.Entity<ReportTask>().HasOne(t => t.Employee);
+            modelBuilder.Entity<Comment>().HasOne(c => c.Task);
+            modelBuilder.Entity<Report>().HasOne(r => r.Employee);
+            modelBuilder.Entity<Modification>().HasOne(m => m.Employee);
+            modelBuilder.Entity<Modification>().HasOne(m => m.Task);
         }
     }
 }

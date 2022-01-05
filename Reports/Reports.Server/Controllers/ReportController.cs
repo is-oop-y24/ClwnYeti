@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Reports.Application.Interfaces;
+using Reports.Core.Builders;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
-using Reports.Core.Services;
 
 namespace Reports.Server.Controllers
 {
@@ -14,14 +14,14 @@ namespace Reports.Server.Controllers
     [Route("/Reports")]
     public class ReportController : Controller
     {
-        private readonly IReportService _service;
+        private readonly IReportApplicationService _applicationService;
         private readonly IEmployeesFinder _employeesFinder;
         private readonly IReportsFinder _reportsFinder;
         private readonly ITaskFinder _taskFinder;
 
-        public ReportController(IReportService service, IEmployeesFinder employeesFinder, ITaskFinder taskFinder, IReportsFinder reportsFinder)
+        public ReportController(IReportApplicationService applicationService, IEmployeesFinder employeesFinder, ITaskFinder taskFinder, IReportsFinder reportsFinder)
         {
-            _service = service;
+            _applicationService = applicationService;
             _employeesFinder = employeesFinder;
             _taskFinder = taskFinder;
             _reportsFinder = reportsFinder;
@@ -35,7 +35,7 @@ namespace Reports.Server.Controllers
             Employee employee = _employeesFinder.FindById(employeeId);
             if (employee == null) return NotFound($"No employee with this id {employeeId}");
             IReportBuilder builder = new ReportBuilder(Guid.NewGuid(), description, employee);
-            return Ok(await _service.Create(builder.Build()));
+            return Ok(await _applicationService.Create(builder.Build()));
         }
         
         [HttpPut]
@@ -46,7 +46,7 @@ namespace Reports.Server.Controllers
             if (report == null) return NotFound($"No report with this id {id}");
             IReportBuilder builder = new ReportBuilder(report);
             builder.WithDescription(description);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpGet]
@@ -66,7 +66,7 @@ namespace Reports.Server.Controllers
             if (report == null) return NotFound($"No report with this id {id}");
             IReportBuilder builder = new ReportBuilder(report);
             builder.WithStatus(ReportStatus.Active);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpPut]
@@ -77,7 +77,7 @@ namespace Reports.Server.Controllers
             if (report == null) return NotFound($"No report with this id {id}");
             IReportBuilder builder = new ReportBuilder(report);
             builder.WithStatus(ReportStatus.Written);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpPut]
@@ -88,7 +88,7 @@ namespace Reports.Server.Controllers
             if (report == null) return NotFound($"No report with this id {id}");
             IReportBuilder builder = new ReportBuilder(report);
             builder.WithStatus(ReportStatus.Outdated);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
 
         [HttpPost]
@@ -99,9 +99,7 @@ namespace Reports.Server.Controllers
             if (report == null) return NotFound($"No report with this id {id}");
             ReportTask reportTask = _taskFinder.FindById(taskId);
             if (reportTask == null) return NotFound($"No task with this id {id}");
-            IReportBuilder builder = new ReportBuilder(report);
-            builder.AddTask(reportTask);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.AddTaskToReport(id, taskId));
         }
         
         [HttpPut]
@@ -113,7 +111,7 @@ namespace Reports.Server.Controllers
             if (employee.Mentor != null) return NotFound($"No team lead with this id {employeeId}");
             IEnumerable<Report> reports = _reportsFinder.FindDifferentStatusReportsOfSubordinates(employeeId, ReportStatus.Outdated).ToList();
             if (reports.Any(r => r.Status != ReportStatus.Written)) return BadRequest("Not all reports are written");
-            await _service.MakeAllReportsOfSubordinatesOutDatedByTeamLead(employeeId);
+            await _applicationService.MakeAllReportsOfSubordinatesOutDatedByTeamLead(employeeId);
             return Ok();
         }
         
@@ -149,7 +147,7 @@ namespace Reports.Server.Controllers
                 return NotFound($"No report with this id {id}");
             }
 
-            return Ok(_service.GetAll());
+            return Ok(_applicationService.GetAll());
         }
     }
 }

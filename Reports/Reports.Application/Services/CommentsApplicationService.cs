@@ -6,11 +6,11 @@ using Reports.Core.Entities;
 
 namespace Reports.Application.Services
 {
-    public class CommentsCommentsCreator : ICommentsCreator
+    public class CommentsApplicationService : ICommentsApplicationService
     {
         private readonly ReportsDatabaseContext _context;
 
-        public CommentsCommentsCreator(ReportsDatabaseContext context)
+        public CommentsApplicationService(ReportsDatabaseContext context)
         {
             _context = context;
         }

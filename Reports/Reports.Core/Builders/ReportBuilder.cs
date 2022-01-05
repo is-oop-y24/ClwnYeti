@@ -4,14 +4,14 @@ using System.Linq;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
 
-namespace Reports.Core.Services
+namespace Reports.Core.Builders
 {
     public class ReportBuilder : IReportBuilder
     {
         private readonly Guid _id;
         private readonly List<ReportTask> _tasks;
         private string _description;
-        private Employee _employee;
+        private readonly Employee _employee;
         private ReportStatus _status;
         public ReportBuilder(Guid id, string description, Employee employee)
         {
@@ -33,16 +33,6 @@ namespace Reports.Core.Services
         public void WithDescription(string description)
         {
             _description = description;
-        }
-
-        public void AddTask(ReportTask task)
-        {
-            if (task == null || _tasks.Contains(task))
-            {
-                throw new ArgumentNullException(nameof(task), "Task is invalid");
-            }
-            
-            _tasks.Add(task);
         }
 
         public void WithStatus(ReportStatus status)

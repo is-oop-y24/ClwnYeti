@@ -4,7 +4,7 @@ using Reports.Core.Entities;
 
 namespace Reports.Application.Interfaces
 {
-    public interface ITaskService
+    public interface ITaskApplicationService
     {
         Task<ReportTask> Create(ReportTask task);
         Task<ReportTask> Update(ReportTask changedTask);

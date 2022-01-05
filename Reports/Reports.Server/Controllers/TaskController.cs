@@ -2,9 +2,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Reports.Application.Interfaces;
+using Reports.Core.Builders;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
-using Reports.Core.Services;
 using TaskStatus = Reports.Core.Entities.TaskStatus;
 
 namespace Reports.Server.Controllers
@@ -13,18 +13,18 @@ namespace Reports.Server.Controllers
     [Route("/Tasks")]
     public class TaskController : Controller
     {
-        private readonly ITaskService _service;
+        private readonly ITaskApplicationService _applicationService;
         private readonly IEmployeesFinder _employeesFinder;
-        private readonly ICommentsCreator _commentsCreator;
+        private readonly ICommentsApplicationService _commentsApplicationService;
         private readonly ICommentsFinder _commentsFinder;
         private readonly ITaskFinder _taskFinder;
 
-        public TaskController(ITaskService service, IEmployeesFinder employeesFinder, ITaskFinder taskFinder, ICommentsCreator commentsCreator, ICommentsFinder commentsFinder)
+        public TaskController(ITaskApplicationService applicationService, IEmployeesFinder employeesFinder, ITaskFinder taskFinder, ICommentsApplicationService commentsApplicationService, ICommentsFinder commentsFinder)
         {
-            _service = service;
+            _applicationService = applicationService;
             _employeesFinder = employeesFinder;
             _taskFinder = taskFinder;
-            _commentsCreator = commentsCreator;
+            _commentsApplicationService = commentsApplicationService;
             _commentsFinder = commentsFinder;
         }
 
@@ -33,7 +33,7 @@ namespace Reports.Server.Controllers
         {
             if (string.IsNullOrWhiteSpace(task)) BadRequest();
             ITaskBuilder builder = new TaskBuilder(Guid.NewGuid(), DateTime.Now, task, null);
-            return Ok(await _service.Create(builder.Build()));
+            return Ok(await _applicationService.Create(builder.Build()));
         }
         
         [HttpPost]
@@ -44,7 +44,7 @@ namespace Reports.Server.Controllers
             Employee employee = _employeesFinder.FindById(employeeId);
             if (employee == null) return NotFound($"No employee with this id {employeeId}");
             ITaskBuilder builder = new TaskBuilder(Guid.NewGuid(), DateTime.Now, task, employee);
-            return Ok(await _service.Create(builder.Build()));
+            return Ok(await _applicationService.Create(builder.Build()));
         }
         
         [HttpGet]
@@ -110,7 +110,7 @@ namespace Reports.Server.Controllers
                 builder.WithEmployee(employee);
             }
 
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpPut]
@@ -121,7 +121,7 @@ namespace Reports.Server.Controllers
             if (task == null) return NotFound($"No task with this id {id}");
             ITaskBuilder builder = new TaskBuilder(task);
             builder.WithStatus(TaskStatus.Active);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpPut]
@@ -132,7 +132,7 @@ namespace Reports.Server.Controllers
             if (task == null) return NotFound($"No task with this id {id}");
             ITaskBuilder builder = new TaskBuilder(task);
             builder.WithStatus(TaskStatus.Open);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpPut]
@@ -143,7 +143,7 @@ namespace Reports.Server.Controllers
             if (task == null) return NotFound($"No task with this id {id}");
             ITaskBuilder builder = new TaskBuilder(task);
             builder.WithStatus(TaskStatus.Resolved);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
 
         [HttpPost]
@@ -154,7 +154,7 @@ namespace Reports.Server.Controllers
             if (task == null) return NotFound($"No task with this id {id}");
             if (!string.IsNullOrWhiteSpace(content))
             {
-                return Ok(await _commentsCreator.Create(Guid.NewGuid(), task, content));
+                return Ok(await _commentsApplicationService.Create(Guid.NewGuid(), task, content));
             }
 
             return BadRequest();
@@ -183,7 +183,7 @@ namespace Reports.Server.Controllers
                 return NotFound($"No task with this id {id}");
             }
 
-            return Ok(_service.GetAll());
+            return Ok(_applicationService.GetAll());
         }
     }
 }

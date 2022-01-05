@@ -12,11 +12,7 @@ namespace Reports.Core.Entities
                 throw new ArgumentNullException(nameof(id), "Id is invalid");
             }
 
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException(nameof(name), "Name is invalid");
-            }
-
+            StringIsValidOrThrowException(name);
             Id = id;
             _name = name;
             Mentor = mentor;
@@ -33,11 +29,7 @@ namespace Reports.Core.Entities
             get => _name;
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ArgumentNullException(nameof(value), "Name is invalid");
-                }
-
+                StringIsValidOrThrowException(value);
                 _name = value;
             }
         }
@@ -59,6 +51,11 @@ namespace Reports.Core.Entities
         private bool Equals(Employee other)
         {
             return Id.Equals(other.Id);
+        }
+
+        private void StringIsValidOrThrowException(string str)
+        {
+            if (str == null || str.Trim().Equals(string.Empty)) throw new ArgumentNullException(nameof(str), "String is invalid");
         }
     }
 }

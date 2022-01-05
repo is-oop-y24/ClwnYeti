@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using Reports.Application.Database;
 using Reports.Application.Interfaces;
 using Reports.Application.Services;
+using Reports.Core.Interfaces;
+using Reports.Core.Services;
 
 namespace Reports.Server
 {
@@ -40,15 +42,18 @@ namespace Reports.Server
                 opt.UseSqlite(@"Filename=..\Reports.sqlite");
                 opt.EnableSensitiveDataLogging();
             });
-            services.AddScoped<IEmployeeService, EmployeeService>();
-            services.AddScoped<ITaskService, TaskService>();
-            services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IEmployeeApplicationService, EmployeeApplicationService>();
+            services.AddScoped<ITaskApplicationService, TaskApplicationService>();
+            services.AddScoped<IReportApplicationService, ReportApplicationService>();
             services.AddScoped<IEmployeesFinder, EmployeesFinder>();
             services.AddScoped<IReportsFinder, ReportsFinder>();
             services.AddScoped<ISubordinatesFinder, SubordinatesFinder>();
             services.AddScoped<ITaskFinder, TaskFinder>();
-            services.AddScoped<ICommentsCreator, CommentsCommentsCreator>();
+            services.AddScoped<ICommentsApplicationService, CommentsApplicationService>();
             services.AddScoped<ICommentsFinder, CommentsFinder>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<ITaskService, TaskService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

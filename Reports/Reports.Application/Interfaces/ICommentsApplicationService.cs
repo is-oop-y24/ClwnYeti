@@ -4,7 +4,7 @@ using Reports.Core.Entities;
 
 namespace Reports.Application.Interfaces
 {
-    public interface ICommentsCreator
+    public interface ICommentsApplicationService
     {
         Task<Comment> Create(Guid id, ReportTask task, string content);
     }

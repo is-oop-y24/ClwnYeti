@@ -4,18 +4,21 @@ using System.Threading.Tasks;
 using Reports.Application.Database;
 using Reports.Application.Interfaces;
 using Reports.Core.Entities;
+using Reports.Core.Interfaces;
 
 namespace Reports.Application.Services
 {
-    public class TaskService : ITaskService
+    public class TaskApplicationService : ITaskApplicationService
     {
         private readonly ReportsDatabaseContext _context;
         private readonly ITaskFinder _taskFinder;
+        private readonly ITaskService _taskService;
 
-        public TaskService(ReportsDatabaseContext context, ITaskFinder taskFinder)
+        public TaskApplicationService(ReportsDatabaseContext context, ITaskFinder taskFinder, ITaskService taskService)
         {
             _context = context;
             _taskFinder = taskFinder;
+            _taskService = taskService;
         }
 
         public async Task<ReportTask> Create(ReportTask task)
@@ -29,9 +32,7 @@ namespace Reports.Application.Services
         {
             ReportTask task = _taskFinder.FindById(changedTask.Id);
             var modification = new Modification(Guid.NewGuid(), task.Employee, task, DateTime.Now);
-            task.Employee = changedTask.Employee;
-            task.Status = changedTask.Status;
-            task.Task = changedTask.Task;
+            _taskService.Update(task, changedTask);
             await _context.Modifications.AddAsync(modification);
             await _context.SaveChangesAsync();
             return changedTask;

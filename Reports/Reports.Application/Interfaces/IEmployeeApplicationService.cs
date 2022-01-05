@@ -5,7 +5,7 @@ using Reports.Core.Entities;
 
 namespace Reports.Application.Interfaces
 {
-    public interface IEmployeeService
+    public interface IEmployeeApplicationService
     {
         IEnumerable<Employee> GetAll();
         Task<Employee> Create(Employee employee);

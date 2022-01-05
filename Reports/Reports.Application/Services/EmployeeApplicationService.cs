@@ -4,24 +4,27 @@ using System.Threading.Tasks;
 using Reports.Application.Database;
 using Reports.Application.Interfaces;
 using Reports.Core.Entities;
+using Reports.Core.Interfaces;
 
 namespace Reports.Application.Services
 {
-    public class EmployeeService : IEmployeeService
+    public class EmployeeApplicationService : IEmployeeApplicationService
     {
         private readonly ReportsDatabaseContext _context;
         private readonly ISubordinatesFinder _subordinatesFinder;
         private readonly IEmployeesFinder _employeesFinder;
         private readonly ITaskFinder _taskFinder;
         private readonly IReportsFinder _reportsFinder;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeService(ReportsDatabaseContext context, ISubordinatesFinder subordinatesFinder, ITaskFinder taskFinder, IReportsFinder reportsFinder, IEmployeesFinder employeesFinder)
+        public EmployeeApplicationService(ReportsDatabaseContext context, ISubordinatesFinder subordinatesFinder, ITaskFinder taskFinder, IReportsFinder reportsFinder, IEmployeesFinder employeesFinder, IEmployeeService employeeService)
         {
             _context = context;
             _subordinatesFinder = subordinatesFinder;
             _taskFinder = taskFinder;
             _reportsFinder = reportsFinder;
             _employeesFinder = employeesFinder;
+            _employeeService = employeeService;
         }
 
         public IEnumerable<Employee> GetAll()
@@ -40,18 +43,10 @@ namespace Reports.Application.Services
         { 
             Employee employee = _employeesFinder.FindById(id);
             if (employee == null) return null;
-            foreach (ReportTask task in _taskFinder.FindTasksOfEmployee(id))
-            {
-                task.Employee = null;
-            }
-            foreach (Report report in _reportsFinder.FindReportsOfEmployee(id))
-            {
-                report.Employee = null;
-            }
-            foreach (Employee subordinate in _subordinatesFinder.FindDirectSubordinates(id))
-            {
-                subordinate.Mentor = employee.Mentor;
-            }
+            IEnumerable<Employee> subordinates = _subordinatesFinder.FindDirectSubordinates(id);
+            IEnumerable<ReportTask> tasks = _taskFinder.FindTasksOfEmployee(id);
+            IEnumerable<Report> reports = _reportsFinder.FindReportsOfEmployee(id);
+            _employeeService.Delete(employee, subordinates, tasks, reports);
             _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();
 
@@ -62,16 +57,8 @@ namespace Reports.Application.Services
         {
             Employee employee = _employeesFinder.FindById(changedEmployee.Id);
             if (employee == null) return null;
-            employee.Name = changedEmployee.Name;
-            if (!Equals(employee.Mentor, changedEmployee.Mentor))
-            {
-                foreach (Employee subordinate in _subordinatesFinder.FindDirectSubordinates(changedEmployee.Id))
-                {
-                    subordinate.Mentor = employee.Mentor;
-                }
-
-                employee.Mentor = changedEmployee.Mentor;
-            }
+            IEnumerable<Employee> subordinates = _subordinatesFinder.FindDirectSubordinates(changedEmployee.Id);
+            _employeeService.Update(employee, changedEmployee, subordinates);
             await _context.SaveChangesAsync();
             return changedEmployee;
         }

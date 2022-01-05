@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Reports.Application.Interfaces;
+using Reports.Core.Builders;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
-using Reports.Core.Services;
 
 
 namespace Reports.Server.Controllers
@@ -13,13 +13,13 @@ namespace Reports.Server.Controllers
     [Route("/Employees")]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeService _service;
+        private readonly IEmployeeApplicationService _applicationService;
         private readonly ISubordinatesFinder _subordinatesFinder;
         private readonly IEmployeesFinder _employeesFinder;
 
-        public EmployeeController(IEmployeeService service, IEmployeesFinder employeesFinder, ISubordinatesFinder subordinatesFinder)
+        public EmployeeController(IEmployeeApplicationService applicationService, IEmployeesFinder employeesFinder, ISubordinatesFinder subordinatesFinder)
         {
-            _service = service;
+            _applicationService = applicationService;
             _employeesFinder = employeesFinder;
             _subordinatesFinder = subordinatesFinder;
         }
@@ -29,7 +29,7 @@ namespace Reports.Server.Controllers
         {
             if (string.IsNullOrWhiteSpace(name)) BadRequest();
             IEmployeeBuilder builder = new EmployeeBuilder(Guid.NewGuid(), name, null);
-            return Ok(await _service.Create(builder.Build()));
+            return Ok(await _applicationService.Create(builder.Build()));
         }
         
         [HttpPost]
@@ -40,7 +40,7 @@ namespace Reports.Server.Controllers
             Employee mentor = _employeesFinder.FindById(mentorId);
             if (mentor == null) return NotFound($"No employee with this id {mentorId}");
             IEmployeeBuilder builder = new EmployeeBuilder(Guid.NewGuid(), name, mentor);
-            return Ok(await _service.Create(builder.Build()));
+            return Ok(await _applicationService.Create(builder.Build()));
         }
         
         [HttpPut]
@@ -63,7 +63,7 @@ namespace Reports.Server.Controllers
                 builder.WithMentor(mentor);
             }
 
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpPut]
@@ -74,7 +74,7 @@ namespace Reports.Server.Controllers
             if (employee == null) return NotFound($"No employee with this id {id}");
             IEmployeeBuilder builder = new EmployeeBuilder(employee);
             builder.WithMentor(null);
-            return Ok(await _service.Update(builder.Build()));
+            return Ok(await _applicationService.Update(builder.Build()));
         }
         
         [HttpGet]
@@ -91,7 +91,7 @@ namespace Reports.Server.Controllers
         {
             Employee employee = _employeesFinder.FindById(id);
             if (employee == null) return NotFound($"No employee with this id {id}");
-            return Ok(await _service.Delete(id));
+            return Ok(await _applicationService.Delete(id));
         }
         
         [HttpGet]
@@ -126,7 +126,7 @@ namespace Reports.Server.Controllers
                 return NotFound($"No employee with this id {id}");
             }
 
-            return Ok(_service.GetAll());
+            return Ok(_applicationService.GetAll());
         }
     }
 }
