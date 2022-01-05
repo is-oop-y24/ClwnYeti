@@ -1,6 +1,7 @@
 using System;
+using Reports.Core.Entities;
 
-namespace Reports.Core.Entities
+namespace Reports.Core.Statuses
 {
     public class ReportTask
     {
@@ -9,7 +10,7 @@ namespace Reports.Core.Entities
         private ReportTask()
         {
         }
-        public ReportTask(Guid id, DateTime timeOfCreation, string task, Employee employee, TaskStatus status)
+        public ReportTask(Guid id, DateTime timeOfCreation, string task, Employee employee, ReportTaskStatus status)
         {
             if (id == Guid.Empty)
             {
@@ -42,7 +43,7 @@ namespace Reports.Core.Entities
         }
         public Employee Employee { get; set; }
 
-        public TaskStatus Status { get; set; }
+        public ReportTaskStatus Status { get; set; }
 
         public override bool Equals(object obj)
         {

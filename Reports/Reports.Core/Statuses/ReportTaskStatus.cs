@@ -1,6 +1,6 @@
 namespace Reports.Core.Entities
 {
-    public enum TaskStatus
+    public enum ReportTaskStatus
     {
         Open,
         Active,

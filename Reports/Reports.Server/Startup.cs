@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Reports.Application.Database;
+using Reports.Application.Finders;
 using Reports.Application.Interfaces;
 using Reports.Application.Services;
 using Reports.Core.Interfaces;
@@ -48,8 +49,7 @@ namespace Reports.Server
             services.AddScoped<IEmployeesFinder, EmployeesFinder>();
             services.AddScoped<IReportsFinder, ReportsFinder>();
             services.AddScoped<ISubordinatesFinder, SubordinatesFinder>();
-            services.AddScoped<ITaskFinder, TaskFinder>();
-            services.AddScoped<ICommentsApplicationService, CommentsApplicationService>();
+            services.AddScoped<ITasksFinder, TasksFinder>();
             services.AddScoped<ICommentsFinder, CommentsFinder>();
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IReportService, ReportService>();

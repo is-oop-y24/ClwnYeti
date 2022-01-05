@@ -4,16 +4,17 @@ using System.Linq;
 using Reports.Application.Database;
 using Reports.Application.Interfaces;
 using Reports.Core.Entities;
+using Reports.Core.Statuses;
 
-namespace Reports.Application.Services
+namespace Reports.Application.Finders
 {
-    public class TaskFinder : ITaskFinder
+    public class TasksFinder : ITasksFinder
     {
         private readonly ReportsDatabaseContext _context;
         private readonly ISubordinatesFinder _subordinatesFinder;
         private readonly IReportsFinder _reportsFinder;
 
-        public TaskFinder(ReportsDatabaseContext context, ISubordinatesFinder subordinatesFinder, IReportsFinder reportsFinder)
+        public TasksFinder(ReportsDatabaseContext context, ISubordinatesFinder subordinatesFinder, IReportsFinder reportsFinder)
         {
             _context = context;
             _subordinatesFinder = subordinatesFinder;

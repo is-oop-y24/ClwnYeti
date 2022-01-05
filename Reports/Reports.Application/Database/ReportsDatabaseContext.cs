@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Reports.Core.Entities;
+using Reports.Core.Statuses;
 
 namespace Reports.Application.Database
 {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
+using Reports.Core.Statuses;
 
 namespace Reports.Core.Services
 {
@@ -22,17 +23,27 @@ namespace Reports.Core.Services
             }
         }
 
-        public Employee Update(Employee employee, Employee changedEmployee, IEnumerable<Employee> subordinates)
+        public Employee ChangeName(Employee employee, string name)
         {
-            employee.Name = changedEmployee.Name;
-            if (Equals(employee.Mentor, changedEmployee.Mentor)) return employee;
+            employee.Name = name;
+            return employee;
+        }
+
+        public Employee ChangeMentor(Employee employee, Employee mentor, IEnumerable<Employee> subordinates)
+        {
             foreach (Employee subordinate in subordinates)
             {
                 subordinate.Mentor = employee.Mentor;
             }
 
-            employee.Mentor = changedEmployee.Mentor;
+            employee.Mentor = mentor;
 
+            return employee;
+        }
+
+        public Employee MakeATeamLead(Employee employee)
+        {
+            employee.Mentor = null;
             return employee;
         }
     }

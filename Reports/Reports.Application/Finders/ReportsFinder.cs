@@ -4,8 +4,9 @@ using System.Linq;
 using Reports.Application.Database;
 using Reports.Application.Interfaces;
 using Reports.Core.Entities;
+using Reports.Core.Statuses;
 
-namespace Reports.Application.Services
+namespace Reports.Application.Finders
 {
     public class ReportsFinder : IReportsFinder
     {

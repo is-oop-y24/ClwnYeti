@@ -2,9 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Reports.Application.Interfaces;
-using Reports.Core.Builders;
-using Reports.Core.Entities;
-using Reports.Core.Interfaces;
+using Reports.Application.Tools;
 
 
 namespace Reports.Server.Controllers
@@ -13,120 +11,125 @@ namespace Reports.Server.Controllers
     [Route("/Employees")]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeApplicationService _applicationService;
-        private readonly ISubordinatesFinder _subordinatesFinder;
-        private readonly IEmployeesFinder _employeesFinder;
+        private readonly IEmployeeApplicationService _service;
 
-        public EmployeeController(IEmployeeApplicationService applicationService, IEmployeesFinder employeesFinder, ISubordinatesFinder subordinatesFinder)
+        public EmployeeController(IEmployeeApplicationService service)
         {
-            _applicationService = applicationService;
-            _employeesFinder = employeesFinder;
-            _subordinatesFinder = subordinatesFinder;
+            _service = service;
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromQuery] string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) BadRequest();
-            IEmployeeBuilder builder = new EmployeeBuilder(Guid.NewGuid(), name, null);
-            return Ok(await _applicationService.Create(builder.Build()));
+            try
+            {
+                return Ok(await _service.Create(name));
+            }
+            catch (InputException)
+            {
+                return BadRequest();
+            }
         }
         
         [HttpPost]
         [Route("MentorId/{mentorId:guid}")]
         public async Task<IActionResult> Create([FromQuery] string name, [FromRoute] Guid mentorId)
         {
-            if (string.IsNullOrWhiteSpace(name)) BadRequest();
-            Employee mentor = _employeesFinder.FindById(mentorId);
-            if (mentor == null) return NotFound($"No employee with this id {mentorId}");
-            IEmployeeBuilder builder = new EmployeeBuilder(Guid.NewGuid(), name, mentor);
-            return Ok(await _applicationService.Create(builder.Build()));
+            try
+            {
+                return Ok(await _service.Create(name, mentorId));
+            }
+            catch (InputException)
+            {
+                return BadRequest();
+            }
+            catch (FinderException e)
+            {
+                return NotFound(e.Message);
+            }
         }
         
         [HttpPut]
         [Route("EmployeeId/{id:guid}")]
         public async Task<IActionResult> Update([FromQuery] string name, [FromQuery] Guid mentorId, [FromRoute] Guid id)
         {
-            Employee employee = _employeesFinder.FindById(id);
-            if (employee == null) return NotFound($"No employee with this id {id}");
-            if (string.IsNullOrWhiteSpace(name) && mentorId == Guid.Empty || mentorId == id) return BadRequest();
-            IEmployeeBuilder builder = new EmployeeBuilder(employee);
-            if (!string.IsNullOrWhiteSpace(name))
+            try
             {
-                builder.WithName(name);
+                return Ok(await _service.Update(name, mentorId, id));
             }
-
-            if (mentorId != Guid.Empty)
+            catch (InputException)
             {
-                Employee mentor = _employeesFinder.FindById(mentorId);
-                if (mentor == null) return NotFound($"No employee with this id {mentorId}");
-                builder.WithMentor(mentor);
+                return BadRequest();
             }
-
-            return Ok(await _applicationService.Update(builder.Build()));
+            catch (FinderException e)
+            {
+                return NotFound(e.Message);
+            }
         }
         
         [HttpPut]
         [Route("EmployeeId/{id:guid}/MakeTeamLead")]
         public async Task<IActionResult> Update([FromRoute] Guid id)
         {
-            Employee employee = _employeesFinder.FindById(id);
-            if (employee == null) return NotFound($"No employee with this id {id}");
-            IEmployeeBuilder builder = new EmployeeBuilder(employee);
-            builder.WithMentor(null);
-            return Ok(await _applicationService.Update(builder.Build()));
+            try
+            {
+                return Ok(await _service.MakeATeamLead(id));
+            }
+            catch (FinderException e)
+            {
+                return NotFound(e.Message);
+            }
         }
         
         [HttpGet]
         [Route("EmployeeId/{id:guid}/Subordinates")]
         public IActionResult GetSubordinates([FromRoute] Guid id)
         {
-            Employee employee = _employeesFinder.FindById(id);
-            if (employee == null) return NotFound($"No employee with this id {id}");
-            return Ok(_subordinatesFinder.FindAllSubordinates(id));
+            try
+            {
+                return Ok(_service.FindAllSubordinates(id));
+            }
+            catch (FinderException e)
+            {
+                return NotFound(e.Message);
+            }
         }
         
         [HttpDelete]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
-            Employee employee = _employeesFinder.FindById(id);
-            if (employee == null) return NotFound($"No employee with this id {id}");
-            return Ok(await _applicationService.Delete(id));
+            try
+            {
+                return Ok(await _service.Delete(id));
+            }
+            catch (FinderException e)
+            {
+                return NotFound(e.Message);
+            }
         }
         
         [HttpGet]
         [Route("TeamLeads")]
         public IActionResult GetTeamLeads()
         {
-            return Ok(_employeesFinder.FindAllTeamLeads());
+            return Ok(_service.FindAllTeamLeads());
         }
         
         [HttpGet]
         public IActionResult Find([FromQuery] string name, [FromQuery] Guid id)
         {
-            if (!string.IsNullOrWhiteSpace(name))
+            try
             {
-                Employee result = _employeesFinder.FindByName(name);
-                if (result != null)
-                {
-                    return Ok(result);
-                }
-
-                return NotFound($"No employee with this name {name}");
+                return Ok(_service.FindEmployee(name, id));
             }
-
-            if (id != Guid.Empty)
+            catch (FinderException e)
             {
-                Employee result = _employeesFinder.FindById(id);
-                if (result != null)
-                {
-                    return Ok(result);
-                }
-
-                return NotFound($"No employee with this id {id}");
+                return NotFound(e.Message);
             }
-
-            return Ok(_applicationService.GetAll());
+            catch (InputException)
+            {
+                return Ok(_service.GetAll());
+            }
         }
     }
 }

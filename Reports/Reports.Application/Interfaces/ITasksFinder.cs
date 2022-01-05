@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 
 using Reports.Core.Entities;
+using Reports.Core.Statuses;
 
 namespace Reports.Application.Interfaces
 {
-    public interface ITaskFinder
+    public interface ITasksFinder
     {
         ReportTask FindById(Guid id);
         IEnumerable<ReportTask> FindTasksOfEmployee(Guid employeeId);

@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using Reports.Core.Entities;
+using Reports.Core.Statuses;
 
 namespace Reports.Core.Interfaces
 {
     public interface IEmployeeService
     {
         void Delete(Employee employee, IEnumerable<Employee> subordinates, IEnumerable<ReportTask> tasks, IEnumerable<Report> reports);
-        Employee Update(Employee employee, Employee changedEmployee, IEnumerable<Employee> subordinates);
+        Employee ChangeName(Employee employee, string name);
+        Employee ChangeMentor(Employee employee, Employee mentor, IEnumerable<Employee> subordinates);
+        Employee MakeATeamLead(Employee employee);
     }
 }

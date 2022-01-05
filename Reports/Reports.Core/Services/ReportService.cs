@@ -1,16 +1,21 @@
 using System.Collections.Generic;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
+using Reports.Core.Statuses;
 
 namespace Reports.Core.Services
 {
     public class ReportService : IReportService
     {
-        public Report Update(Report report, Report changedReport)
+        public Report ChangeDescription(Report report, string description)
         {
-            report.Description = changedReport.Description;
-            report.Employee = changedReport.Employee;
-            report.Status = changedReport.Status;
+            report.Description = description;
+            return report;
+        }
+
+        public Report ChangeStatus(Report report, ReportStatus status)
+        {
+            report.Status = status;
             return report;
         }
 
