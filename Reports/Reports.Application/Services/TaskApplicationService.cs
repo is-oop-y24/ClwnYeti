@@ -27,13 +27,6 @@ namespace Reports.Application.Services
             _employeesFinder = employeesFinder;
         }
 
-        public async Task<ReportTask> Create(ReportTask task)
-        {
-            await _context.Tasks.AddAsync(task);
-            await _context.SaveChangesAsync();
-            return task;
-        }
-
         public async Task<ReportTask> Create(string task)
         {
             if (task == null || task.Trim().Equals(string.Empty)) throw new InputException();
