@@ -1,4 +1,4 @@
-namespace Reports.Core.Entities
+namespace Reports.Core.Statuses
 {
     public enum ReportTaskStatus
     {

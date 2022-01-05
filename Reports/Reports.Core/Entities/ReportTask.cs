@@ -1,7 +1,7 @@
 using System;
-using Reports.Core.Entities;
+using Reports.Core.Statuses;
 
-namespace Reports.Core.Statuses
+namespace Reports.Core.Entities
 {
     public class ReportTask
     {

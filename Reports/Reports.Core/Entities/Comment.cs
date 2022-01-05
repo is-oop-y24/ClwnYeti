@@ -1,5 +1,4 @@
 using System;
-using Reports.Core.Statuses;
 
 namespace Reports.Core.Entities
 {

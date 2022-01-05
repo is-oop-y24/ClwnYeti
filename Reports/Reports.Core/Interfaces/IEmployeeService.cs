@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Reports.Core.Entities;
-using Reports.Core.Statuses;
 
 namespace Reports.Core.Interfaces
 {

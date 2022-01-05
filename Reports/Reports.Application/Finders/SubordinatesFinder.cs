@@ -5,7 +5,7 @@ using Reports.Application.Database;
 using Reports.Application.Interfaces;
 using Reports.Core.Entities;
 
-namespace Reports.Application.Services
+namespace Reports.Application.Finders
 {
     public class SubordinatesFinder : ISubordinatesFinder
     {

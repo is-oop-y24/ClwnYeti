@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reports.Core.Entities;
-using Reports.Core.Statuses;
 
 namespace Reports.Application.Interfaces
 {

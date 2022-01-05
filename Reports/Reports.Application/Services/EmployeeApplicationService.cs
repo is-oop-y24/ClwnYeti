@@ -6,7 +6,6 @@ using Reports.Application.Interfaces;
 using Reports.Application.Tools;
 using Reports.Core.Entities;
 using Reports.Core.Interfaces;
-using Reports.Core.Statuses;
 
 namespace Reports.Application.Services
 {
